@@ -286,3 +286,187 @@ Tradobill API doc
     "data": null  // This is unnecessary
 }
 ```
+
+
+
+## Send Password Reset Code Endpoint
+
+**Endpoint:** `/auth/password/reset` (This is a suggested endpoint; adjust as needed)
+
+**PHP Route:** `Route::post('auth/password/reset', 'Api\Auth\ForgotPasswordController@sendResetCodeEmail');`
+
+
+**Request:**
+
+* **Method:** POST
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "type": "email", // or "username"
+    "value": "testuser@example.com" // or "testusername"
+}
+```
+
+**Response (Success - 200):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "message": {
+        "success": [
+            "Password reset email sent successfully"
+        ]
+    },
+    "data": {
+        "email": "testuser@example.com"
+    }
+}
+```
+
+**Response (User Not Found - 200):** *(Should be a 404 Not Found)*
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 200, // Should be 404
+    "status": "ok", // Should indicate an error
+    "message": {
+        "error": [
+            "User not found."
+        ]
+    }
+}
+```
+
+**Response (Validation Error - 200):** *(Should be a 422 Unprocessable Entity)*
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:** (Example with email validation error)
+
+```json
+{
+    "code": 200, // Should be 422
+    "status": "ok", // Should indicate an error
+    "message": {
+        "error": [
+            "Email must be a valid email" 
+        ]
+    }
+}
+```
+
+
+**Response (Invalid Selection - 200):** *(Should be a 400 Bad Request)*
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 200, // Should be 400
+    "status": "ok",  // Should indicate an error
+    "message": {
+        "error": [
+            "Invalid selection"
+        ]
+    }
+}
+```
+
+
+
+## Verify Code Endpoint
+
+
+**Endpoint:** `/auth/password/verify` (Suggested endpoint)
+
+**PHP Route:** `Route::post('auth/password/verify', 'Api\Auth\ForgotPasswordController@verifyCode');`
+
+
+**Request:**
+
+* **Method:** POST
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "email": "testuser@example.com",
+    "code": "123456"
+}
+
+```
+
+
+**Response (Success - 200):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "message": {
+        "success": [
+            "You can change your password"
+        ]
+    },
+    "data": {
+        "token": "123456",
+        "email": "testuser@example.com"
+    }
+}
+```
+
+
+**Response (Invalid Token - 200):** *(Should be a 400 Bad Request or 422)*
+
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 200, // Should be 400 or 422
+    "status": "ok", // Should be "error"
+    "message": {
+        "error": [
+            "Invalid token"
+        ]
+    }
+}
+```
+
+**Response (Validation Error - 200):** *(Should be 422)*
+
+* **Headers:**
+ * `Content-Type: application/json`
+* **Body:** (Example if the `code` is missing)
+```json
+{
+    "code": 200,  // Should be 422
+    "status": "ok",  // Should be "error"
+    "message": {
+        "error": [
+            "The code field is required."
+        ]
+    }
+}
+```
