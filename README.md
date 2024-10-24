@@ -107,3 +107,102 @@ Tradobill API doc
   }
   ```
 
+
+
+
+
+## Registration Endpoint
+
+**Endpoint:** `/auth/register`
+
+**PHP Route:** `Route::post('auth/register', 'Api\Auth\RegisterController@register');`
+
+**Request:**
+
+* **Method:** POST
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "email": "testuser@example.com",
+    "mobile": "1234567890",
+    "password": "SecurePassword123",
+    "password_confirmation": "SecurePassword123",
+    "username": "testuser123",
+    "country_code": "US", 
+    "mobile_code": "+1",
+    "country": "United States",
+    "agree": true // If required by GeneralSetting
+}
+```
+
+
+**Response (Successful Registration - 202):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 202,
+    "status": "created",
+    "message": {
+        "success": [
+            "Registration successfull"
+        ]
+    },
+    "data": {
+        "access_token": "generated_access_token",
+        "token_type": "Bearer",
+        "user": {
+            "id": 2,  // Example user ID
+            "username": "testuser123",
+            "email": "testuser@example.com",
+            // ... other user details
+        }
+    }
+}
+```
+
+**Response (Validation Error - 200):**  *(This should be a 422 Unprocessable Entity)*
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 200, // Incorrect: Should be 422
+    "status": "ok", // Incorrect: Should be "error" or similar
+    "message": {
+        "error": [
+            "The email has already been taken.",
+            // ...other validation errors
+        ]
+    }
+}
+```
+
+
+
+**Response (Mobile Number Exists - 409):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 409,
+    "status": "conflict",
+    "message": {
+        "error": [
+            "The mobile number already exists"
+        ]
+    }
+}
+
+```
