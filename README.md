@@ -206,3 +206,83 @@ Tradobill API doc
 }
 
 ```
+
+
+
+## Reset Password Endpoint
+
+**Endpoint:** `/auth/password/update` (This is a suggested endpoint; adjust if needed)
+
+**PHP Route:** `Route::post('auth/password/update', 'Api\Auth\ResetPasswordController@reset');`
+
+**Request:**
+
+* **Method:** POST
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "email": "testuser@example.com",
+    "token": "123456",
+    "password": "NewSecurePassword123",
+    "password_confirmation": "NewSecurePassword123"
+}
+```
+
+**Response (Success - 200):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 200,
+    "status": "ok",  // Consider using "success"
+    "message": {
+        "success": [ // Or just have a message, not an array
+            "Password changed"
+        ]
+    }
+}
+```
+
+**Response (Invalid Verification Code - 200):** *(Should be a 400 Bad Request or 422)*
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 200, // Should be 400 or 422
+    "status": "ok", // Should indicate an error
+    "message": {
+        "error": [
+            "Invalid verification code"
+        ]
+    }
+}
+```
+
+
+**Response (Validation Error - 200):** *(Should be a 422 Unprocessable Entity)*
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**  (Example with a password validation error)
+
+```json
+{
+    "code": 200, // Should be 422
+    "status": "ok", // Should indicate an error
+    "message": {
+        "error": [
+            "The password must be at least 6 characters." // Example
+        ]
+    },
+    "data": null  // This is unnecessary
+}
+```
