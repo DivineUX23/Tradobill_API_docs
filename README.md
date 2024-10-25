@@ -1763,3 +1763,124 @@ These endpoints follow similar patterns as the previous ones. They handle reques
 
 
 
+
+
+## Airtime Endpoint
+
+**Endpoint:** `/user/airtime` (Consider a more specific endpoint name like `/user/airtime/providers` or `/user/airtime/history`)
+
+**PHP Route:** `Route::get('user/airtime', 'Api\User\AirtimeController@airtime');`
+
+**Request:**
+
+* **Method:** GET
+* **Headers:**
+    * `Authorization: Bearer <access_token>`
+
+**Response (Success - 200 OK):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "networks": [
+        {
+            "name": "MTN",
+            "logo": "mtn.png",
+            "networkid": "mtn"
+        },
+        {
+            "name": "AIRTEL",
+            "logo": "airtel.jpeg",
+            "networkid": "airtel"
+        },
+        {
+            "name": "GLO",
+            "logo": "glo.jpeg",
+            "networkid": "glo"
+        },
+        {
+            "name": "9MOBILE",
+            "logo": "9mobile.jpeg",
+            "networkid": "etisalat"
+        }
+    ],
+    "airtimelog": {  // This will be the paginated airtime purchase history
+        "current_page": 1,
+        "data": [
+            // ... airtime purchase records
+        ],
+        // ... pagination details
+    }
+}
+```
+
+**Explanation:** This endpoint returns a list of available airtime network providers and the user's airtime purchase history.  It would be helpful to include the `image_path` in the response for the network logos.
+
+
+
+## Buy Airtime (Local) Endpoint
+
+**Endpoint:** `/user/buy-airtime/local`
+
+**PHP Route:** `Route::post('user/buy-airtime/local', 'Api\User\AirtimeController@buy_airtime_post_local');`
+
+**Request:**
+
+* **Method:** POST
+* **Headers:**
+    * `Authorization: Bearer <access_token>`
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "amount": 50,
+    "operator": "mtn", // networkid
+    "wallet": "main", // or other wallet type
+    "phone": "1234567890",  // Phone number to recharge
+    "password": "user_transaction_password"
+}
+```
+
+
+**Responses:** *(All responses currently use a 200 status code, even for errors, which should be corrected.)*
+
+
+**Response (Success - 200):** *(Should be 201 Created)*
+* Body:
+```json
+{
+    "ok": true,
+    "status": "success",
+    "message": "Transaction Was Successful",
+    "orderid": "unique_order_id"
+}
+```
+
+**Response (Incorrect Password, Insufficient Balance, Processing Error - 400):**
+
+* **Body:** Example (insufficient balance)
+```json
+{
+    "ok": false,
+    "status": "danger",
+    "message": "Insufficient wallet balance"
+}
+```
+
+**Response (VTpass API Error - 400):**
+
+* **Body:** (Example)
+```json
+{
+    "ok": false,
+    "status": "danger",
+    "message": "VTpass error message" // More specific error messages from VTpass would be helpful.
+}
+```
+
+
+**Explanation:**  This endpoint handles the purchase of airtime. It uses the `buy_airtime_post_vtpass` method internally, so the responses and explanations are combined.
