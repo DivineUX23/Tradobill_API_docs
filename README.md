@@ -470,3 +470,350 @@ Tradobill API doc
     }
 }
 ```
+
+
+
+Let's break down and document each endpoint in the provided code.
+
+## Authorization Check Endpoint
+
+**Endpoint:** `/auth/authorization` (This is a suggested endpoint – adjust as needed.)
+
+**PHP Route:** `Route::get('auth/authorization', 'Api\AuthorizationController@authorization');` (Assumed GET, but could be POST)
+
+**Request:**
+
+* **Method:** GET (or POST)
+* **Headers:**
+    * `Authorization: Bearer <access_token>`
+
+**Response (Account Deactivated - 200):** *(Should be a 403 Forbidden)*
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 200, // Should be 403
+    "status": "ok", // Should indicate an error
+    "message": {
+        "success": [ // Shouldn't be "success"
+            "Your account has been deactivated"
+        ]
+    }
+}
+```
+
+**Response (Email Verification Needed - 200):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "message": {
+        "success": [
+            "Email verification"
+        ]
+    },
+    "data": {
+        "verification_url": "http://example.com/api/user/verify/email",
+        "verification_method": "POST",
+        "resend_url": "http://example.com/api/user/send/verify/code?type=email",
+        "resend_method": "GET",
+        "verification_type": "email"
+    }
+}
+```
+
+**Response (SMS Verification Needed - 200):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:** (Similar structure to email verification, but with SMS details)
+
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "message": {
+        "success": [
+            "SMS verification"
+        ]
+    },
+    "data": {
+        "verification_url": "http://example.com/api/user/verify/sms",
+        "verification_method": "POST",
+        "resend_url": "http://example.com/api/user/send/verify/code?type=phone",
+        "resend_method": "GET",
+        "verification_type": "sms"
+    }
+}
+
+```
+
+
+**Response (2FA Verification Needed - 200):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "message": {
+        "success": [
+            "Google Authenticator"  // Consider a more descriptive message
+        ]
+    },
+    "data": {
+        "verification_url": "http://example.com/api/user/go2fa/verify",
+        "verification_method": "POST",
+        "verification_type": "2fa"
+    }
+}
+```
+
+
+## Send Verification Code Endpoint
+
+**Endpoint:** `/user/send/verify/code`
+
+**PHP Route:** `Route::get('user/send/verify/code', 'Api\AuthorizationController@sendVerifyCode');`
+
+
+**Request:**
+
+* **Method:** GET
+* **Headers:**
+    * `Authorization: Bearer <access_token>`
+* **Query Parameters:**
+    * `type`:  `email` or `phone`
+
+**Response (Success - Email - 200):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "message": {
+        "success": [
+            "Email verification code sent successfully"
+        ]
+    }
+}
+
+```
+
+**Response (Success - SMS - 200):** (Similar structure, but message indicates SMS)
+
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "message": {
+        "success": [
+            "SMS verification code sent successfully"
+        ]
+    }
+}
+```
+
+
+**Response (Rate Limit - 200):** *(Should be a 429 Too Many Requests)*
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 200,  // Should be 429
+    "status": "ok", // Should be "error" or similar
+    "message": {
+        "success": [ // Conflicting - Shouldn't be "success"
+            "Please Try after 118 Seconds" //  Make this more user-friendly
+        ]
+    }
+}
+```
+
+**Response (Sending Failed - 200):** *(Should be a 500 Internal Server Error)*
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+   "code": 200, // Should be 500
+   "status": "ok", //  Should be an error status
+   "message": {
+       "success": [  // Should not be a success message
+           "Sending Failed" // Be more specific if possible
+       ]
+   }
+}
+
+```
+
+
+
+## Email Verification Endpoint
+
+**Endpoint:** `/user/verify/email`
+
+**PHP Route:** `Route::post('user/verify/email', 'Api\AuthorizationController@emailVerification');`
+
+**Request:**
+
+* **Method:** POST
+* **Headers:**
+    * `Authorization: Bearer <access_token>`
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "email_verified_code": "123456"
+}
+```
+
+**Response (Success - 200):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "message": {
+        "success": [
+            "Email verified successfully"
+        ]
+    }
+}
+```
+
+**Response (Code Mismatch - 200):** *(Should be a 400 Bad Request)*
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 200, // Should be 400
+    "status": "ok",  // Should indicate error
+    "message": {
+        "success":[ // Shouldn't be success
+            "Verification code didn't match!"
+        ]
+    }
+}
+
+```
+
+**Response (Validation Error - 200):**  *(Should be 422)*
+
+* **Headers:**
+* `Content-Type: application/json`
+* **Body:** (Example if `email_verified_code` is missing)
+
+```json
+
+{
+    "code": 200, // Should be 422
+    "status": "ok", // Should indicate an error
+    "message": {
+        "error": [
+            "The email verified code field is required."
+        ]
+    }
+}
+```
+
+
+
+## SMS Verification Endpoint (Similar structure to Email Verification)
+
+**Endpoint:** `/user/verify/sms`
+
+**PHP Route:**  `Route::post('user/verify/sms', 'Api\AuthorizationController@smsVerification');`
+
+(Request and Response structures are very similar to email verification, just using `sms_verified_code` instead of `email_verified_code`.)
+
+
+
+## 2FA Verification Endpoint
+
+
+**Endpoint:** `/user/go2fa/verify`
+
+**PHP Route:** `Route::post('user/go2fa/verify', 'Api\AuthorizationController@g2faVerification');`
+
+**Request:**
+
+* **Method:** POST
+* **Headers:**
+    * `Authorization: Bearer <access_token>`
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": "123456" 
+}
+```
+
+
+**Response (Success - 200):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "message": {      
+        "success": [   // Or just a plain message string
+            "Verification successful"
+        ]
+    }
+}
+```
+
+
+**Response (Wrong Code - 200):** *(Should be 400 or 401 Unauthorized)*
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+
+{
+    "code": 200,  // Should be 400 or 401
+    "status": "ok", // Should indicate an error
+    "message": {
+        "error": [  //  "error" key is better for consistency
+            "Wrong verification code"
+        ]
+    }
+}
+
+```
