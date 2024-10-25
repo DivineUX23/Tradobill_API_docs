@@ -1068,8 +1068,8 @@ return response()->json($this->unauthenticate());
 ```json
 {
     "amount": 100,
-    "method_code": "paypal",
-    "currency": "USD"
+    "method_code": 109,
+    "currency": "NGN"
 }
 
 ```
