@@ -1319,3 +1319,334 @@ return response()->json($this->unauthenticate());
 }
 
 ```
+
+
+
+
+
+
+
+## Deposit Methods Endpoint
+
+**Endpoint:** `/deposit/methods`
+
+**PHP Route:** `Route::get('deposit/methods', 'Api\PaymentController@depositMethods');`
+
+**Request:**
+
+* **Method:** GET
+
+**Response (Success - 200):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:** (Example)
+
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "message": {  // "message" for success and "error" for errors is recommended for consistency
+        "success": [ // Better to just have the message string directly
+            "Payment Methods"
+        ]
+    },
+    "data": {
+        "methods": [
+            {
+                "id": 1,
+                "method_code": "paypal",
+                "currency": "USD",
+                "method": {
+                    "name": "PayPal",
+                    "image": "paypal.png",
+                    // ... other method details
+                },
+                 // ... other gateway currency details
+            },
+            // ... more methods
+        ],
+        "image_path": "http://example.com/assets/images/gateway" // Example image path
+    }
+}
+
+```
+
+**Explanation:** This endpoint retrieves the available deposit methods and their associated currencies, along with the base image path for gateway icons.
+
+
+## Deposit Insert Endpoint
+
+**Endpoint:** `/deposit/insert`
+
+**PHP Route:** `Route::post('deposit/insert', 'Api\PaymentController@depositInsert');`
+
+**Request:**
+
+* **Method:** POST
+* **Headers:**
+    * `Content-Type: application/json`
+    * `Authorization: Bearer <access_token>`
+* **Body:**
+
+```json
+{
+    "amount": 100,
+    "method_code": "paypal",
+    "currency": "USD"
+}
+
+```
+
+**Response (Success - 202 Accepted):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:** (Example)
+
+```json
+{
+    "code": 202,
+    "status": "created",  //  "created" or "accepted"
+    "message": {
+        "success": [
+            "Deposit Created"
+        ]
+    },
+    "data": {
+        "deposit": {
+            "trx": "unique_transaction_id",  // Example
+            "amount": 100,
+            // ... other deposit details
+        }
+    }
+}
+```
+
+**Response (Validation Error or Invalid Gateway - 200):** *(Should be 422 or 400)*
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:** (Example validation error)
+
+```json
+{
+    "code": 200, // Should be 422 or 400
+    "status": "ok", // Should be "error"
+    "message": {
+        "error": [
+            "The amount field is required."  // Example
+        ]
+    }
+}
+
+```
+
+**Response (Deposit Limit Error - 200):** *(Should be 400 Bad Request)*
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 200, // Should be 400
+    "status": "ok", // Should be "error"
+    "message": {
+        "error": [
+            "Please follow deposit limit"
+        ]
+    }
+}
+```
+
+
+**Explanation:**  This endpoint initiates a deposit request.  It validates the request, checks for deposit limits, calculates charges, and creates a new deposit record.
+
+
+
+## Deposit Confirm Endpoint
+
+
+**Endpoint:** `/deposit/confirm`
+
+**PHP Route:** `Route::get('deposit/confirm', 'Api\PaymentController@depositConfirm');` (Could also be POST)
+
+
+**Request:**
+
+* **Method:** GET (or POST)
+* **Headers:**
+ * `Content-Type: application/json`
+* **Query Parameters (or Request Body if POST):**
+    * `transaction`: The unique transaction ID (trx)
+
+
+**Response (Success - 200 OK):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:** (The structure will depend on the payment gateway's process method)
+
+
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "data": {
+        "gateway_data": {
+            "redirect_url": "https://payment-gateway.com/pay",  // Example
+            // ... other gateway-specific data
+        }
+    }
+}
+
+```
+
+
+
+**Response (Deposit Not Found - 404):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 404,
+    "status": "error",
+    "message": {
+        "error": [
+            "Deposit not found"
+        ]
+    }
+}
+
+```
+
+**Response (Validation Error - 200):** *(Should be 422)*
+* **Headers:**
+ * `Content-Type: application/json`
+* **Body:** (Example)
+```json
+{
+    "code": 200, // Should be 422
+    "status": "ok",  // Should be "error"
+    "message": {
+        "error": [
+            "The transaction field is required."
+        ]
+    }
+}
+```
+
+
+
+
+**Explanation:** This endpoint confirms the deposit and interacts with the chosen payment gateway to proceed with the payment process. The response may contain a redirect URL or other gateway-specific data.
+
+
+
+
+## Manual Deposit Confirm Endpoint
+
+
+**Endpoint:** `/deposit/manual/confirm`
+
+**PHP Route:** `Route::get('deposit/manual/confirm', 'Api\PaymentController@manualDepositConfirm');` (Or POST)
+
+
+**Request:**
+
+* **Method:** GET (or POST)
+* **Headers:**
+ * `Content-Type: application/json`
+* **Query Parameter (or request body):**
+    * `transaction`:  The transaction ID
+
+
+**Response (Success - 200):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:** (Example)
+
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "message": {
+        "success": [
+            "Manual payment details"
+        ]
+    },
+    "data": {
+        "deposit": {
+             // ... deposit details
+        },
+        "payment_method": {
+            // ... payment method details
+        }
+    }
+}
+```
+
+
+**Response (Deposit Not Found or Validation Error):** (Structures similar to previous examples—404 for not found, 422 for validation errors.)
+
+
+**Explanation:** This endpoint retrieves details for manual deposit confirmation, providing information about the deposit and the chosen manual payment method.
+
+
+
+## Manual Deposit Update Endpoint
+
+
+**Endpoint:** `/deposit/manual/update`
+
+**PHP Route:** `Route::post('deposit/manual/update', 'Api\PaymentController@manualDepositUpdate');`
+
+**Request:**
+
+* **Method:** POST
+* **Headers:**
+    * `Content-Type: application/json` (or `multipart/form-data` if file uploads are involved)
+    * `Authorization: Bearer <access_token>`
+
+* **Body:** (The body will depend on the `gateway_parameter` for the manual method.)  It might include text fields, file uploads, etc.  Example:
+
+```json
+{
+    "transaction": "trx_id",
+    "payment_reference": "ref123",  // Example custom field
+    "receipt": "image_file.jpg"  // Example file upload field
+}
+
+```
+
+
+
+**Response (Success - 200 OK):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "message": {
+        "success": [  // Or just return the message string directly
+            "Deposit request sent successfully"
+        ]
+    }
+}
+
+```
+
+**Response (Deposit Not Found or Validation Errors):** (Structures similar to previous examples - 404 or 422)
+
+
+
+
+**Explanation:** This endpoint updates the manual deposit request with the provided details (which might include uploaded files).  It marks the deposit status as pending and sends notifications.
