@@ -817,3 +817,185 @@ Let's break down and document each endpoint in the provided code.
 }
 
 ```
+
+
+
+## Countries Endpoint
+
+**Endpoint:** `/countries` (Suggest adding an appropriate prefix like `/basic/countries`)
+
+**PHP Route:** `Route::get('countries', 'Api\BasicController@countries');`
+
+**Request:**
+
+* **Method:** GET
+
+**Response (Success - 200):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:** (Example – the actual content will depend on the `country.json` file)
+
+```json
+[
+    {
+        "country": "United States",
+        "dial_code": "+1",
+        "code": "US"
+    },
+    {
+        "country": "Canada",
+        "dial_code": "+1",
+        "code": "CA"
+    },
+    // ... more countries
+]
+```
+
+
+
+## General Setting Endpoint
+
+**Endpoint:** `/general-setting` (Suggest prefixing, e.g., `/basic/general-setting`)
+
+**PHP Route:** `Route::get('general-setting', 'Api\BasicController@generalSetting');`
+
+**Request:**
+
+* **Method:** GET
+
+**Response (Success - 200):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:** (Example – the structure will reflect your `GeneralSetting` model)
+
+
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "message": {
+        "success": [
+            "General setting data"
+        ]
+    },
+    "data": {
+        "general_setting": {
+            "site_name": "Example Site",
+            // ... other general settings
+        }
+    }
+}
+```
+
+## Unauthenticated Endpoint  (This seems like a helper function, not a real endpoint)
+
+This function likely doesn't represent a real API endpoint, but rather a helper function to return a standardized unauthorized response.  If it *is* an endpoint, it would typically be triggered by an authentication middleware when a user tries to access a protected resource without a valid token.
+
+**Example Usage (in middleware):**
+
+```php
+return response()->json($this->unauthenticate());
+```
+
+
+
+## Languages Endpoint
+
+**Endpoint:** `/languages`  (Suggest prefix, e.g., `/basic/languages`)
+
+**PHP Route:** `Route::get('languages', 'Api\BasicController@languages');`
+
+**Request:**
+
+* **Method:** GET
+
+**Response (Success - 200):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:** (Example)
+
+
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "data": {
+        "languages": [
+            {
+                "id": 1,
+                "name": "English",
+                "code": "en",
+                // ... other language details
+            },
+            {
+                "id": 2,
+                "name": "Spanish",
+                "code": "es",
+                // ... other language details
+             }
+            // ... more languages
+        ],
+        "image_path": "http://example.com/assets/images/lang" // example
+    }
+}
+
+```
+
+
+
+## Language Data Endpoint
+
+**Endpoint:** `/language/{code}` (Suggest prefix, e.g., `/basic/language/{code}`)
+
+**PHP Route:** `Route::get('language/{code}', 'Api\BasicController@languageData');`
+
+
+**Request:**
+
+* **Method:** GET
+* **Path Parameter:**
+    * `code`: The language code (e.g., "en", "es")
+
+
+**Response (Success - 200):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:** (The structure will depend on the content of the language JSON file.)
+
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "message": {  // or data: {} would be more conventional
+        "language_data": {
+            "key1": "Translated Value 1",
+            "key2": "Translated Value 2",
+            // ... more translated strings
+        }
+    }
+}
+```
+
+
+**Response (Language Not Found - 404):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 404,
+    "status": "error",
+    "message": {
+        "error": [
+            "Language not found"
+        ]
+    }
+}
+
+```
