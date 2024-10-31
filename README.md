@@ -1030,11 +1030,11 @@ return response()->json($this->unauthenticate());
     "data": {
         "methods": [
             {
-                "id": 1,
-                "method_code": "paypal",
-                "currency": "USD",
+		"id": 1,
+		"method_code": 109,
+		"currency": "NGN"
                 "method": {
-                    "name": "PayPal",
+                    "name": "FlutterWave",
                     "image": "paypal.png",
                     // ... other method details
                 },
@@ -1068,10 +1068,9 @@ return response()->json($this->unauthenticate());
 ```json
 {
     "amount": 100,
-    "method_code": "paypal",
-    "currency": "USD"
+    "method_code": 109,
+    "currency": "NGN"
 }
-
 ```
 
 **Response (Success - 202 Accepted):**
