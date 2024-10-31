@@ -1155,6 +1155,12 @@ return response()->json($this->unauthenticate());
  * `Content-Type: application/json`
 * **Query Parameters (or Request Body if POST):**
     * `transaction`: The unique transaction ID (trx)
+```json
+{
+  "transaction": "B66OGQJN473R"
+}
+
+```
 
 
 **Response (Success - 200 OK):**
