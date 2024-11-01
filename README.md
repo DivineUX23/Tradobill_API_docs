@@ -209,86 +209,6 @@ Tradobill API doc
 
 
 
-## Reset Password Endpoint
-
-**Endpoint:** `/auth/password/update` (This is a suggested endpoint; adjust if needed)
-
-**PHP Route:** `Route::post('auth/password/update', 'Api\Auth\ResetPasswordController@reset');`
-
-**Request:**
-
-* **Method:** POST
-* **Headers:**
-    * `Content-Type: application/json`
-* **Body:**
-
-```json
-{
-    "email": "testuser@example.com",
-    "token": "123456",
-    "password": "NewSecurePassword123",
-    "password_confirmation": "NewSecurePassword123"
-}
-```
-
-**Response (Success - 200):**
-
-* **Headers:**
-    * `Content-Type: application/json`
-* **Body:**
-
-```json
-{
-    "code": 200,
-    "status": "ok",  // Consider using "success"
-    "message": {
-        "success": [ // Or just have a message, not an array
-            "Password changed"
-        ]
-    }
-}
-```
-
-**Response (Invalid Verification Code - 200):** *(Should be a 400 Bad Request or 422)*
-
-* **Headers:**
-    * `Content-Type: application/json`
-* **Body:**
-
-```json
-{
-    "code": 200, // Should be 400 or 422
-    "status": "ok", // Should indicate an error
-    "message": {
-        "error": [
-            "Invalid verification code"
-        ]
-    }
-}
-```
-
-
-**Response (Validation Error - 200):** *(Should be a 422 Unprocessable Entity)*
-
-* **Headers:**
-    * `Content-Type: application/json`
-* **Body:**  (Example with a password validation error)
-
-```json
-{
-    "code": 200, // Should be 422
-    "status": "ok", // Should indicate an error
-    "message": {
-        "error": [
-            "The password must be at least 6 characters." // Example
-        ]
-    },
-    "data": null  // This is unnecessary
-}
-```
-
-
-
 ## Send Password Reset Code Endpoint
 
 **Endpoint:** `/auth/password/reset` (This is a suggested endpoint; adjust as needed)
@@ -470,6 +390,85 @@ Tradobill API doc
     }
 }
 ```
+
+## Reset Password Endpoint
+
+**Endpoint:** `/auth/password/update` (This is a suggested endpoint; adjust if needed)
+
+**PHP Route:** `Route::post('auth/password/update', 'Api\Auth\ResetPasswordController@reset');`
+
+**Request:**
+
+* **Method:** POST
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "email": "testuser@example.com",
+    "token": "123456",
+    "password": "NewSecurePassword123",
+    "password_confirmation": "NewSecurePassword123"
+}
+```
+
+**Response (Success - 200):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 200,
+    "status": "ok",  // Consider using "success"
+    "message": {
+        "success": [ // Or just have a message, not an array
+            "Password changed"
+        ]
+    }
+}
+```
+
+**Response (Invalid Verification Code - 200):** *(Should be a 400 Bad Request or 422)*
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "code": 200, // Should be 400 or 422
+    "status": "ok", // Should indicate an error
+    "message": {
+        "error": [
+            "Invalid verification code"
+        ]
+    }
+}
+```
+
+
+**Response (Validation Error - 200):** *(Should be a 422 Unprocessable Entity)*
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:**  (Example with a password validation error)
+
+```json
+{
+    "code": 200, // Should be 422
+    "status": "ok", // Should indicate an error
+    "message": {
+        "error": [
+            "The password must be at least 6 characters." // Example
+        ]
+    },
+    "data": null  // This is unnecessary
+}
+```
+
 
 
 
@@ -820,96 +819,17 @@ Let's break down and document each endpoint in the provided code.
 
 
 
-## Countries Endpoint
+## Dashboard Endpoint
 
-**Endpoint:** `/countries` (Suggest adding an appropriate prefix like `/basic/countries`)
+**Endpoint:** `/user/dashboard`
 
-**PHP Route:** `Route::get('countries', 'Api\BasicController@countries');`
+**PHP Route:** `Route::get('user/dashboard', 'Api\UserController@dashboard');`
 
 **Request:**
 
 * **Method:** GET
-
-**Response (Success - 200):**
-
 * **Headers:**
-    * `Content-Type: application/json`
-* **Body:** (Example – the actual content will depend on the `country.json` file)
-
-```json
-[
-    {
-        "country": "United States",
-        "dial_code": "+1",
-        "code": "US"
-    },
-    {
-        "country": "Canada",
-        "dial_code": "+1",
-        "code": "CA"
-    },
-    // ... more countries
-]
-```
-
-
-
-## General Setting Endpoint
-
-**Endpoint:** `/general-setting` (Suggest prefixing, e.g., `/basic/general-setting`)
-
-**PHP Route:** `Route::get('general-setting', 'Api\BasicController@generalSetting');`
-
-**Request:**
-
-* **Method:** GET
-
-**Response (Success - 200):**
-
-* **Headers:**
-    * `Content-Type: application/json`
-* **Body:** (Example – the structure will reflect your `GeneralSetting` model)
-
-
-```json
-{
-    "code": 200,
-    "status": "ok",
-    "message": {
-        "success": [
-            "General setting data"
-        ]
-    },
-    "data": {
-        "general_setting": {
-            "site_name": "Example Site",
-            // ... other general settings
-        }
-    }
-}
-```
-
-## Unauthenticated Endpoint  (This seems like a helper function, not a real endpoint)
-
-This function likely doesn't represent a real API endpoint, but rather a helper function to return a standardized unauthorized response.  If it *is* an endpoint, it would typically be triggered by an authentication middleware when a user tries to access a protected resource without a valid token.
-
-**Example Usage (in middleware):**
-
-```php
-return response()->json($this->unauthenticate());
-```
-
-
-
-## Languages Endpoint
-
-**Endpoint:** `/languages`  (Suggest prefix, e.g., `/basic/languages`)
-
-**PHP Route:** `Route::get('languages', 'Api\BasicController@languages');`
-
-**Request:**
-
-* **Method:** GET
+    * `Authorization: Bearer <access_token>`
 
 **Response (Success - 200):**
 
@@ -917,71 +837,79 @@ return response()->json($this->unauthenticate());
     * `Content-Type: application/json`
 * **Body:** (Example)
 
-
 ```json
 {
-    "code": 200,
-    "status": "ok",
     "data": {
-        "languages": [
+        "ref_balance": 100.50, // Example
+        "balance": 500.00,      // Example
+        "total_transaction": 25, // Example
+        "deposit": 1500.00,    // Example
+		"yearLabels": ["January", "February", ...],
+		"yearDeposit": [120.00, 50.50, ...],  // Monthly deposit amounts
+		"yearPayout": [0.00, 20.00, ...], // Monthly payout amounts
+        "plan": { /* ... plan details */ }, // latest user plan details
+        "trx": [ /* ... transaction details */ ], // latest 6 transactions
+        "ref": 5,  // Referral count
+        "last_login": { /* ... details of the last login */},
+        "top_earner": [
             {
-                "id": 1,
-                "name": "English",
-                "code": "en",
-                // ... other language details
+                "user_id": 5,
+                "sums": 1000,
+                "user": { /* user information */ }
             },
-            {
-                "id": 2,
-                "name": "Spanish",
-                "code": "es",
-                // ... other language details
-             }
-            // ... more languages
+            // ...
         ],
-        "image_path": "http://example.com/assets/images/lang" // example
-    }
-}
-
-```
-
-
-
-## Language Data Endpoint
-
-**Endpoint:** `/language/{code}` (Suggest prefix, e.g., `/basic/language/{code}`)
-
-**PHP Route:** `Route::get('language/{code}', 'Api\BasicController@languageData');`
-
-
-**Request:**
-
-* **Method:** GET
-* **Path Parameter:**
-    * `code`: The language code (e.g., "en", "es")
-
-
-**Response (Success - 200):**
-
-* **Headers:**
-    * `Content-Type: application/json`
-* **Body:** (The structure will depend on the content of the language JSON file.)
-
-```json
-{
-    "code": 200,
-    "status": "ok",
-    "message": {  // or data: {} would be more conventional
-        "language_data": {
-            "key1": "Translated Value 1",
-            "key2": "Translated Value 2",
-            // ... more translated strings
+		"user": {
+			// ... user details
+		},
+        "user_browser_counter": {
+            "Chrome": 55,
+            "Firefox": 20,
+            // ... other browsers
+        },
+        "user_os_counter": {
+            "Windows": 60,
+            "macOS": 15,
+            // ... other operating systems
         }
     }
 }
+
+```
+
+**Explanation:** This endpoint provides a comprehensive overview of the user's dashboard, including balances, transactions, referrals, recent logins, top earners, and usage statistics.
+
+
+
+## Submit Profile Endpoint
+
+**Endpoint:** `/user/profile/submit`
+
+**PHP Route:** `Route::post('user/profile/submit', 'Api\UserController@submitProfile');`
+
+**Request:**
+
+* **Method:** POST
+* **Headers:**
+    * `Authorization: Bearer <access_token>`
+    * `Content-Type: application/json` (Or `multipart/form-data` if image included)
+* **Body:**
+
+```json
+{
+    "firstname": "John",
+    "lastname": "Doe",
+    "address": "123 Main St",
+    "state": "CA",
+    "zip": "90210",
+    "city": "Los Angeles",
+    "image": "user_image.jpg" // If updating profile image, sent as multipart data.
+}
+
 ```
 
 
-**Response (Language Not Found - 404):**
+**Response (Success - 200):**
 
 * **Headers:**
     * `Content-Type: application/json`
@@ -989,17 +917,94 @@ return response()->json($this->unauthenticate());
 
 ```json
 {
-    "code": 404,
-    "status": "error",
+    "code": 200,
+    "status": "ok",
+    "message": {
+        "success": [
+             "Profile updated successfully."
+        ]
+    }
+}
+```
+
+**Response (Validation Error - 200):** *(Should be 422)*
+* **Headers:**
+ * `Content-Type: application/json`
+* **Body:** (Example)
+```json
+{
+    "code": 200, // Should be 422
+    "status": "ok", // Should indicate an error
     "message": {
         "error": [
-            "Language not found"
+            "The firstname field is required."
         ]
     }
 }
 
 ```
 
+
+**Explanation:** This endpoint allows users to update their profile information, including their name, address, and profile image.
+
+
+
+## Submit Password Endpoint
+
+**Endpoint:** `/user/password/submit`
+
+**PHP Route:** `Route::post('user/password/submit', 'Api\UserController@submitPassword');`
+
+**Request:**
+
+* **Method:** POST
+* **Headers:**
+    * `Authorization: Bearer <access_token>`
+    * `Content-Type: application/json`
+* **Body:**
+
+```json
+{
+    "current_password": "OldPassword123",
+    "password": "NewPassword123",
+    "password_confirmation": "NewPassword123"
+}
+```
+
+**Response (Success - 200):**
+
+
+* **Headers:**
+ * `Content-Type: application/json`
+* **Body:**
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "message": {  // Or just message: "..."
+        "success": "Password changes successfully" // Or use the "error" key for wrong password response
+    }
+}
+```
+
+
+**Response (Password Mismatch or Validation Error - 200):** *(Should be 400 or 422 respectively)*
+* **Headers:**
+ * `Content-Type: application/json`
+* **Body:** (Example: Password Mismatch)
+```json
+{
+    "code": 200, // Should be 400
+    "status": "ok", // Should be "error"
+    "message": {
+        "error":  "The password doesn't match!" // Or ["The password doesn't match!"] for consistency
+    }
+}
+
+```
+
+
+**Explanation:**  This endpoint enables users to change their password. It requires the current password for verification.
 
 
 ## Deposit Methods Endpoint
@@ -1334,113 +1339,61 @@ return response()->json($this->unauthenticate());
 
 
 
-
-
-
-
-
-
-
-
-
 ```json
 ```
 
-## Dashboard Endpoint
 
-**Endpoint:** `/user/dashboard`
 
-**PHP Route:** `Route::get('user/dashboard', 'Api\UserController@dashboard');`
+## Countries Endpoint
+
+**Endpoint:** `/countries` (Suggest adding an appropriate prefix like `/basic/countries`)
+
+**PHP Route:** `Route::get('countries', 'Api\BasicController@countries');`
 
 **Request:**
 
 * **Method:** GET
-* **Headers:**
-    * `Authorization: Bearer <access_token>`
 
 **Response (Success - 200):**
 
 * **Headers:**
     * `Content-Type: application/json`
-* **Body:** (Example)
+* **Body:** (Example – the actual content will depend on the `country.json` file)
 
 ```json
-{
-    "data": {
-        "ref_balance": 100.50, // Example
-        "balance": 500.00,      // Example
-        "total_transaction": 25, // Example
-        "deposit": 1500.00,    // Example
-		"yearLabels": ["January", "February", ...],
-		"yearDeposit": [120.00, 50.50, ...],  // Monthly deposit amounts
-		"yearPayout": [0.00, 20.00, ...], // Monthly payout amounts
-        "plan": { /* ... plan details */ }, // latest user plan details
-        "trx": [ /* ... transaction details */ ], // latest 6 transactions
-        "ref": 5,  // Referral count
-        "last_login": { /* ... details of the last login */},
-        "top_earner": [
-            {
-                "user_id": 5,
-                "sums": 1000,
-                "user": { /* user information */ }
-            },
-            // ...
-        ],
-		"user": {
-			// ... user details
-		},
-        "user_browser_counter": {
-            "Chrome": 55,
-            "Firefox": 20,
-            // ... other browsers
-        },
-        "user_os_counter": {
-            "Windows": 60,
-            "macOS": 15,
-            // ... other operating systems
-        }
-    }
-}
-
+[
+    {
+        "country": "United States",
+        "dial_code": "+1",
+        "code": "US"
+    },
+    {
+        "country": "Canada",
+        "dial_code": "+1",
+        "code": "CA"
+    },
+    // ... more countries
+]
 ```
 
-**Explanation:** This endpoint provides a comprehensive overview of the user's dashboard, including balances, transactions, referrals, recent logins, top earners, and usage statistics.
 
 
+## General Setting Endpoint
 
-## Submit Profile Endpoint
+**Endpoint:** `/general-setting` (Suggest prefixing, e.g., `/basic/general-setting`)
 
-**Endpoint:** `/user/profile/submit`
-
-**PHP Route:** `Route::post('user/profile/submit', 'Api\UserController@submitProfile');`
+**PHP Route:** `Route::get('general-setting', 'Api\BasicController@generalSetting');`
 
 **Request:**
 
-* **Method:** POST
-* **Headers:**
-    * `Authorization: Bearer <access_token>`
-    * `Content-Type: application/json` (Or `multipart/form-data` if image included)
-* **Body:**
-
-```json
-{
-    "firstname": "John",
-    "lastname": "Doe",
-    "address": "123 Main St",
-    "state": "CA",
-    "zip": "90210",
-    "city": "Los Angeles",
-    "image": "user_image.jpg" // If updating profile image, sent as multipart data.
-}
-
-```
-
+* **Method:** GET
 
 **Response (Success - 200):**
 
 * **Headers:**
     * `Content-Type: application/json`
-* **Body:**
+* **Body:** (Example – the structure will reflect your `GeneralSetting` model)
+
 
 ```json
 {
@@ -1448,90 +1401,148 @@ return response()->json($this->unauthenticate());
     "status": "ok",
     "message": {
         "success": [
-             "Profile updated successfully."
+            "General setting data"
         ]
+    },
+    "data": {
+        "general_setting": {
+            "site_name": "Example Site",
+            // ... other general settings
+        }
     }
 }
 ```
 
-**Response (Validation Error - 200):** *(Should be 422)*
-* **Headers:**
- * `Content-Type: application/json`
-* **Body:** (Example)
-```json
-{
-    "code": 200, // Should be 422
-    "status": "ok", // Should indicate an error
-    "message": {
-        "error": [
-            "The firstname field is required."
-        ]
-    }
-}
+## Unauthenticated Endpoint  (This seems like a helper function, not a real endpoint)
 
+This function likely doesn't represent a real API endpoint, but rather a helper function to return a standardized unauthorized response.  If it *is* an endpoint, it would typically be triggered by an authentication middleware when a user tries to access a protected resource without a valid token.
+
+**Example Usage (in middleware):**
+
+```php
+return response()->json($this->unauthenticate());
 ```
 
 
-**Explanation:** This endpoint allows users to update their profile information, including their name, address, and profile image.
 
+## Languages Endpoint
 
+**Endpoint:** `/languages`  (Suggest prefix, e.g., `/basic/languages`)
 
-## Submit Password Endpoint
-
-**Endpoint:** `/user/password/submit`
-
-**PHP Route:** `Route::post('user/password/submit', 'Api\UserController@submitPassword');`
+**PHP Route:** `Route::get('languages', 'Api\BasicController@languages');`
 
 **Request:**
 
-* **Method:** POST
+* **Method:** GET
+
+**Response (Success - 200):**
+
 * **Headers:**
-    * `Authorization: Bearer <access_token>`
+    * `Content-Type: application/json`
+* **Body:** (Example)
+
+
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "data": {
+        "languages": [
+            {
+                "id": 1,
+                "name": "English",
+                "code": "en",
+                // ... other language details
+            },
+            {
+                "id": 2,
+                "name": "Spanish",
+                "code": "es",
+                // ... other language details
+             }
+            // ... more languages
+        ],
+        "image_path": "http://example.com/assets/images/lang" // example
+    }
+}
+
+```
+
+
+
+## Language Data Endpoint
+
+**Endpoint:** `/language/{code}` (Suggest prefix, e.g., `/basic/language/{code}`)
+
+**PHP Route:** `Route::get('language/{code}', 'Api\BasicController@languageData');`
+
+
+**Request:**
+
+* **Method:** GET
+* **Path Parameter:**
+    * `code`: The language code (e.g., "en", "es")
+
+
+**Response (Success - 200):**
+
+* **Headers:**
+    * `Content-Type: application/json`
+* **Body:** (The structure will depend on the content of the language JSON file.)
+
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "message": {  // or data: {} would be more conventional
+        "language_data": {
+            "key1": "Translated Value 1",
+            "key2": "Translated Value 2",
+            // ... more translated strings
+        }
+    }
+}
+```
+
+
+**Response (Language Not Found - 404):**
+
+* **Headers:**
     * `Content-Type: application/json`
 * **Body:**
 
 ```json
 {
-    "current_password": "OldPassword123",
-    "password": "NewPassword123",
-    "password_confirmation": "NewPassword123"
-}
-```
-
-**Response (Success - 200):**
-
-
-* **Headers:**
- * `Content-Type: application/json`
-* **Body:**
-```json
-{
-    "code": 200,
-    "status": "ok",
-    "message": {  // Or just message: "..."
-        "success": "Password changes successfully" // Or use the "error" key for wrong password response
-    }
-}
-```
-
-
-**Response (Password Mismatch or Validation Error - 200):** *(Should be 400 or 422 respectively)*
-* **Headers:**
- * `Content-Type: application/json`
-* **Body:** (Example: Password Mismatch)
-```json
-{
-    "code": 200, // Should be 400
-    "status": "ok", // Should be "error"
+    "code": 404,
+    "status": "error",
     "message": {
-        "error":  "The password doesn't match!" // Or ["The password doesn't match!"] for consistency
+        "error": [
+            "Language not found"
+        ]
     }
 }
 
 ```
 
 
-**Explanation:**  This endpoint enables users to change their password. It requires the current password for verification.
+
+
+
+
+
+
+
+
+
+
+######NOT Guaranteed to work
+
+
+
+
+
+
+
 
 
 
