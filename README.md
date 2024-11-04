@@ -2132,6 +2132,381 @@ or
 
 
 
+
+
+
+
+
+
+
+
+
+
+```markdown
+# Crypto API Documentation
+
+This document details the API endpoints for cryptocurrency functionalities. All endpoints require authentication using a bearer token in the `Authorization` header.  The "Crypto Exchange" feature must also be enabled in the admin settings.
+
+## Endpoints
+
+### 1. Get Crypto Rates
+
+* **Endpoint:** `/user/crypto/rates`
+* **Method:** `GET`
+* **Description:** Retrieves the current exchange rates for available cryptocurrencies.
+* **Request Body:** None
+* **Response Body (Success):**
+```json
+{
+    "status": "success",
+    "data": [
+        // Array of Cryptocurrency objects with rate information
+        {
+            "id": 1,
+            "name": "Bitcoin",
+            "symbol": "BTC",
+            "image": "btc.png",
+            "buy_rate": 30000,  // Example buy rate
+            "sell_rate": 29500, // Example sell rate
+            // ... other cryptocurrency details
+        },
+        // ... other cryptocurrencies
+    ]
+}
+```
+* **Response Body (Error):**
+```json
+{
+  "status": "error",
+  "message": "Error message" // Details of the error
+}
+```
+
+### 2. Get Crypto Currencies (Same as Rates)
+
+* **Endpoint:** `/user/crypto/currencies`
+* **Method:** `GET`
+* **Description:** This endpoint appears to be identical to `/user/crypto/rates` and retrieves the same data.
+* **Request Body:** None
+* **Response Body:** Same as `/user/crypto/rates`
+
+
+### 3. Get Crypto Wallet
+
+* **Endpoint:** `/user/crypto/wallet/{id}`
+* **Method:** `GET`
+* **Description:** Retrieves the user's wallet for a specific cryptocurrency. If the wallet doesn't exist, a new one is created using the Coinremitter API.
+* **Request Body:** None
+* **Response Body (Success):**
+```json
+{
+  "status": "success",
+  "data": {
+    "wallet": {
+      "id": 1,
+      "coin_id": 1, // Cryptocurrency ID
+      "user_id": 1, // User ID
+      "label": "user_label",  // Wallet label
+      "address": "crypto_wallet_address",
+      "qrcode": "qr_code_url", // QR code image URL
+      "balance": 0, // Current wallet balance (in cryptocurrency)
+      "status": 1 // Wallet status
+    },
+    "transactions": [
+        // Array of Cryptotrx objects representing transactions for this wallet
+        {
+            // ... Transaction details
+        }
+    ],
+    "coin": {
+        // Cryptocurrency details (same structure as in /rates endpoint)
+    }
+  }
+}
+```
+
+* **Response Body (Error):**
+```json
+{
+  "status": "error",
+  "message": "Error message" // Details of the error, e.g., if wallet creation fails.
+}
+```
+
+
+### 4. Validate Crypto Wallet Address
+
+* **Endpoint:** `/user/crypto/validate/{id}`
+* **Method:** `POST`
+* **Description:** Validates a cryptocurrency wallet address using the Coinremitter API.
+* **Request Body:**
+```json
+{
+  "address": "crypto_wallet_address"
+}
+```
+* **Response Body (Success):**
+```json
+{
+  "status": "success",
+  "data": {
+    "valid": true,  //  true if the address is valid, false otherwise
+    // ... other data returned by Coinremitter
+  }
+}
+
+```
+
+* **Response Body (Error):**
+```json
+{
+    "status": "error",
+    "errors": { // Validation errors if the 'address' field is missing or invalid }
+}
+```
+or
+```json
+{
+  "status": "error",
+  "message": "Error, Please check network" // If the Coinremitter API returns an error.
+}
+```
+
+
+
+### 5. Calculate Exchange Rate
+
+* **Endpoint:** `/user/crypto/exchange/{id}`
+* **Method:** `POST`
+* **Description:** Calculates the amount of cryptocurrency a user would receive for a given USD amount.
+* **Request Body:**
+```json
+{
+  "amount": 100 // Amount in USD
+}
+```
+
+* **Response Body (Success):**
+```json
+{
+    "status": "success",
+    "data": {
+        "fiat_amount": 100, // The USD amount provided in the request
+        "crypto_amount": 0.0025, // Calculated crypto amount based on rates
+        "fiat_symbol": "USD",
+        "crypto_symbol": "BTC", // Example (will vary based on the coin)
+        // ... other data from the Coinremitter API
+    }
+}
+```
+
+
+* **Response Body (Error):**
+
+```json
+{
+    "status": "error",
+    "errors": { // Validation errors (if any)}
+}
+```
+
+or errors for invalid source wallet, or if the amount exceeds the min/max limits.
+
+
+
+### 6. Swap Crypto for USD
+
+* **Endpoint:** `/user/crypto/swap/{id}`
+* **Method:** `POST`
+* **Description:** Swaps a specified amount of cryptocurrency for USD, adding the USD to the user's main balance.
+* **Request Body:**
+```json
+{
+    "amount": 100,      // Amount in USD to swap
+    "source": "wallet_address", // User's crypto wallet address
+    "swappin": "transaction_password" // User's transaction PIN
+}
+```
+
+
+* **Response Body (Success):**
+```json
+{
+ "status": "success",
+ "message": "Swap completed successfully",
+ "data": {
+     "amount_swapped": 0.0025,  // Amount of crypto swapped
+     "received_amount": 98,     //  USD amount received after swap (might be less than 'amount' due to swap fees or rates)
+     "new_balance":  198         // User's updated main wallet balance
+ }
+}
+
+```
+
+
+
+* **Response Body (Error):** Can include validation errors, "Invalid transaction PIN," "Invalid Source Wallet," "Insufficient wallet balance," or errors from the Coinremitter API.
+
+
+
+
+
+```
+These API endpoints provide functionalities for managing cryptocurrencies, including retrieving rates, managing wallets, validating addresses, calculating exchange amounts, and swapping crypto for USD.  Be sure to handle potential errors appropriately in your application.
+
+
+
+
+
+
+
+
+```markdown
+# Buy Crypto API Documentation
+
+This document details the API endpoints for buying cryptocurrency. All endpoints require authentication using a bearer token in the `Authorization` header.  Additionally, the user must have completed KYC verification and the "Buy Crypto" feature must be enabled in the admin settings.
+
+## Endpoints
+
+### 1. Get Coin Details
+
+* **Endpoint:** `/user/buy-crypto/details`
+* **Method:** `POST`
+* **Description:** Retrieves details for a specific cryptocurrency, including its current rate and the platform's buy rate.
+* **Request Body:**
+```json
+{
+  "coin": "coin_id", // The ID of the cryptocurrency
+  "amount": 100 // The amount of USD the user wants to spend (used for calculating crypto amount)
+}
+```
+
+* **Response Body (Success):**
+```json
+{
+    "status": "success",
+    "data": {
+        "rate": 0.000025, // The current market rate from Coinremitter (if crypto_auto is 1) or the platform's rate
+        "our_rate": 0.000026  // The platform's buy rate for the cryptocurrency
+    }
+}
+```
+* **Response Body (Error):**
+```json
+{
+    "status": "error",
+    "errors": { // Validation errors (if any) }
+}
+```
+or
+```json
+{
+    "status": "error",
+    "message": "Unable to calculate asset rate" // If fetching the rate from Coinremitter fails (and crypto_auto is 1)
+}
+```
+
+
+### 2. Buy Crypto (Process)
+
+* **Endpoint:** `/user/buy-crypto/process`
+* **Method:** `POST`
+* **Description:** Processes a cryptocurrency purchase.
+* **Request Body:**
+```json
+{
+  "pin": "user_transaction_pin",
+  "coin": "coin_id",
+  "amount": 100, // Amount in USD the user wants to spend
+  "wallet": "main" or "referral" // Wallet to deduct funds from
+}
+```
+* **Response Body (Success - Automated Purchase):**  If `crypto_auto` is enabled in the admin settings:
+```json
+{
+  "status": "success",
+  "data": {
+    "coin": "0.0025 BTC",  // Amount of crypto purchased
+    "usd": 100,              // USD equivalent
+    "fiat": 100,             // Total fiat spent (including any fees - currently not implemented)
+    "auto": true            // Indicates automated purchase
+  }
+}
+
+```
+
+* **Response Body (Success - Manual Purchase):** If `crypto_auto` is disabled:
+```json
+{
+  "status": "success",
+  "data": {
+    "coin": {/* Coin details */},
+    "trx": "transaction_code",     // Transaction ID
+    "usd": 100,                   // USD equivalent
+    "fiat": 102,                  // Total fiat spent (including fees if applicable)
+    "auto": false                  // Indicates manual purchase
+  }
+}
+
+```
+
+* **Response Body (Error):**
+```json
+{
+ "status": "error",
+ "errors": { // Validation errors (if any) }
+}
+```
+
+or other error responses like "Invalid transaction PIN" or "Insufficient wallet balance."
+
+
+
+### 3. Confirm Manual Purchase
+
+* **Endpoint:** `/user/buy-crypto/confirm`
+* **Method:** `POST`
+* **Description:** Confirms a manual cryptocurrency purchase by providing wallet address and payment proof. This endpoint is used only if `crypto_auto` is *disabled*.
+* **Request Body:**
+```json
+{
+    "trx": "transaction_code", // The transaction ID returned from the /process endpoint
+    "walletaddress": "user_crypto_wallet_address",
+    "proof": "proof_of_payment_image" // File upload
+}
+```
+* **Response Body (Success):**
+```json
+{
+ "status": "success",
+ "message": "Transaction submitted successfully"
+}
+```
+* **Response Body (Error):**
+```json
+{
+    "status": "error",
+    "errors": { // Validation errors (if any) }  
+}
+```
+or other server-side errors if the file upload fails or there's a problem updating the order.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Countries Endpoint
 
 **Endpoint:** `/countries` (Suggest adding an appropriate prefix like `/basic/countries`)
