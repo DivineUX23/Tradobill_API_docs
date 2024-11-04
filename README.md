@@ -2011,6 +2011,127 @@ This document details the API endpoints for managing user profiles. All endpoint
 
 
 
+```markdown
+# Betting API Documentation
+
+This document details the API endpoints for betting functionalities.  All endpoints require authentication using a bearer token in the `Authorization` header.
+
+## Endpoints
+
+
+### 1. Get Wallet Details
+
+* **Endpoint:** `/user/betting/wallet`
+* **Method:** `GET`
+* **Description:** Retrieves the authenticated user's betting wallet details, including available networks, betting history, and current balance.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+  "status": "success",
+  "data": {
+    "networks": [
+        // Array of betting networks. Structure depends on the 'betting.json' file
+    ],
+    "betting_history": {  // Paginated betting history
+        "data": [
+            // Array of Order objects representing betting transactions
+        ],
+        // ... pagination data
+    },
+    "user_balance": 100  // User's main wallet balance
+  }
+}
+
+```
+
+### 2. Verify Merchant
+
+* **Endpoint:** `/user/betting/verify`
+* **Method:** `POST`
+* **Description:** Verifies a betting merchant/customer ID. Uses the Payscribe API for verification.
+* **Request Body:**
+```json
+{
+    "merchant": "merchant_code",  // Betting provider code (e.g., sportybet)
+    "number": "customer_id"     // Customer ID with the merchant
+}
+```
+* **Response Body (Success):**
+```json
+{
+    "status": "success",
+    "data": {
+        "customer_name": "Customer Name"  // Retrieved from Payscribe API
+    }
+}
+```
+* **Response Body (Error):**
+```json
+{
+    "status": "error",
+    "message": "Invalid Customer ID" // Or other error messages from the Payscribe API
+}
+```
+
+
+### 3. Fund Betting Wallet
+
+* **Endpoint:** `/user/betting/fund`
+* **Method:** `POST`
+* **Description:** Funds the user's betting wallet using their main wallet balance.
+* **Request Body:**
+```json
+{
+    "password": "transaction_password", // User's transaction PIN
+    "amount": 50, // Amount to fund
+    "customer_name": "Customer Name", // Verified customer name from step 2
+    "number": "customer_id",       //  Customer ID/account number with the betting merchant
+    "company": "merchant_code"      // Betting provider code
+}
+```
+* **Response Body (Success):**
+```json
+{
+    "status": "success",
+    "message": "Transaction successful",
+    "data": {
+        "transaction_id": "transaction_code",
+        "amount": 50, // Funded amount
+        "customer_name": "Customer Name",
+        "new_balance": 40 // User's new main wallet balance after funding
+    }
+}
+```
+* **Response Body (Error):**  Possible error responses:
+```json
+{
+    "status": "error",
+    "message": "Invalid transaction password" // Incorrect transaction PIN
+}
+```
+or
+```json
+{
+    "status": "error",
+    "message": "Insufficient wallet balance"
+}
+
+```
+or
+```json
+{
+ "status": "error",
+ "message": "Error message from Payscribe API" //  E.g., if the funding request to Payscribe fails
+}
+```
+
+
+```
+
+
+
+
 ## Countries Endpoint
 
 **Endpoint:** `/countries` (Suggest adding an appropriate prefix like `/basic/countries`)
