@@ -819,192 +819,859 @@ Let's break down and document each endpoint in the provided code.
 
 
 
-## Dashboard Endpoint
 
-**Endpoint:** `/user/dashboard`
 
-**PHP Route:** `Route::get('user/dashboard', 'Api\UserController@dashboard');`
 
-**Request:**
 
-* **Method:** GET
-* **Headers:**
-    * `Authorization: Bearer <access_token>`
 
-**Response (Success - 200):**
 
-* **Headers:**
-    * `Content-Type: application/json`
-* **Body:** (Example)
 
+
+
+
+
+
+
+```markdown
+# User API Documentation
+
+This document provides details on the available API endpoints for user functionalities. All endpoints require authentication unless otherwise specified.
+
+## Authentication
+
+All endpoints except `/user/validateusername` require a valid bearer token in the `Authorization` header for authentication.
+
+
+## Endpoints
+
+### 1. Home
+
+* **Endpoint:** `/user/home`
+* **Method:** `GET`
+* **Description:** Retrieves user dashboard data, including balances, transactions, tickets, and other statistics.
+* **Request Body:** None
+* **Response Body:**
 ```json
 {
+  "status": "success",
+  "message": "home",
+  "data": {
+    "pageTitle": "Dashboard",
+    "widget": {
+      "ref_balance": 0,
+      "balance": 0,
+      "usd_balance": 0, 
+      "gbp_balance": 0,
+      "total_transaction": 0,
+      "total_debit": 0,
+      "total_credit": 0,
+      "total_ticket": 0
+    },
     "data": {
-        "ref_balance": 100.50, // Example
-        "balance": 500.00,      // Example
-        "total_transaction": 25, // Example
-        "deposit": 1500.00,    // Example
-		"yearLabels": ["January", "February", ...],
-		"yearDeposit": [120.00, 50.50, ...],  // Monthly deposit amounts
-		"yearPayout": [0.00, 20.00, ...], // Monthly payout amounts
-        "plan": { /* ... plan details */ }, // latest user plan details
-        "trx": [ /* ... transaction details */ ], // latest 6 transactions
-        "ref": 5,  // Referral count
-        "last_login": { /* ... details of the last login */},
-        "top_earner": [
-            {
-                "user_id": 5,
-                "sums": 1000,
-                "user": { /* user information */ }
-            },
-            // ...
-        ],
-		"user": {
-			// ... user details
-		},
-        "user_browser_counter": {
-            "Chrome": 55,
-            "Firefox": 20,
-            // ... other browsers
-        },
-        "user_os_counter": {
-            "Windows": 60,
-            "macOS": 15,
-            // ... other operating systems
-        }
+        "gatewayCurrency": [],
+        "yearLabels": [],
+        "yearDeposit": [],
+        "yearPayout": [],
+        "ref": 0,
+        "top_earner": [],
+        "user_browser_counter": {},
+        "user_os_counter": {},
+        "user_login_counter": {},
+        "logins": [],
+        "current_login": {},
+        "last_login": {},
+        "credit": [],
+        "debit": [],
+        "trxlog": [],
+        "deposit": [] 
+    }
+  }
+}
+```
+
+
+### 2. Crypto Trade
+
+* **Endpoint:** `crypto/trade/{id?}`
+* **Method:** `GET`
+* **Description:**  Retrieves crypto trade data.  If `id` is 'buy' or 'sell', returns available currencies. Otherwise, returns trade history and statistics.
+* **Request Body:** None
+* **Response Body (if id is not 'buy' or 'sell'):**
+```json
+{
+  "pageTitle": "Trade Crypto Trade",
+  "currencies": [],
+  "log": [], // Paginated trade history
+  "week": 0,
+  "month": 0,
+  "year": 0,
+  "sellPercentage": 0,
+  "buyPercentage": 0,
+  "total": 0
+}
+```
+* **Response Body (if id is 'buy' or 'sell'):**
+```json
+{
+    "pageTitle": "Trade Crypto Trade",
+    "currencies": []
+}
+```
+
+
+### 3. API Key
+
+* **Endpoint:** `/user/apikey`
+* **Method:** `GET`
+* **Description:** Retrieves the user's API key.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+    "pageTitle": "API Key",
+    "key": "sk_xxxxxxxxxxxx", 
+    "user": {} 
+}
+```
+
+
+### 4. Generate API Key
+
+* **Endpoint:** `/user/apikey/generate`
+* **Method:** `POST`
+* **Description:** Generates a new API key for the user.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+  "success": "API Key Generated Successfully"
+}
+```
+
+
+
+### 5. API Webhook
+
+* **Endpoint:** `/user/apikey/webhook`
+* **Method:** `POST`
+* **Description:** Updates the user's webhook and callback URLs.
+* **Request Body:**
+```json
+{
+  "webhook": "your_webhook_url",
+  "callback": "your_callback_url"
+}
+```
+* **Response Body:**
+```json
+{
+  "success": "Webhook & Callback URL Updated Successfully"
+}
+```
+
+
+### 6. QR Code
+
+* **Endpoint:** `/user/qrcode`
+* **Method:** `GET`
+* **Description:** Retrieves the user's QR code information and transaction history.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+    "today": 0,
+    "trx": [],
+    "pageTitle": "QR Code",
+    "url": "qr_code_url",
+    "payment": 0,
+    "received": 0
+}
+```
+
+
+### 7. KYC
+
+* **Endpoint:** `/user/kyc`
+* **Method:** `GET`
+* **Description:** Retrieves the user's KYC verification status and information.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+    "pageTitle": "KYC Verification",
+    "user": {
+       // User data including KYC information
+    }
+}
+```
+
+
+### 8. KYC Submit
+
+* **Endpoint:** `/user/kyc/post`
+* **Method:** `POST`
+* **Description:** Submits KYC verification documents.
+* **Request Body:**
+```json
+{
+  "type": "kyc_type",  //e.g., passport, driving license
+  "front": "front_image_file",  // File upload
+  "back": "back_image_file"    // File upload
+}
+```
+
+* **Response Body:**
+```json
+{
+  "success": "KYC document submitted successfully"
+}
+```
+
+### 9. Generate Nuban
+
+* **Endpoint:** `/user/generate/nuban`
+* **Method:** `POST`
+* **Description:** Generates a virtual account number (Nuban) for the user.
+* **Request Body:** None. Provider is determined by the server's configuration.
+* **Response Body (Success):**
+```json
+{
+  "ok": true,
+  "status": "success",
+  "message": "Account number created successfully" 
+}
+```
+* **Response Body (Error):**
+```json
+{
+  "ok": false,
+  "status": "danger",
+  "message": "Error message"
+}
+```
+
+
+
+
+### 10. Swap Currency
+
+* **Endpoint:** `/user/swap`
+* **Method:** `GET`
+* **Description:** Retrieves the user's currency swap history.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+    "pageTitle": "Swap Currency",
+    "log": []
+}
+```
+
+
+
+### 11. Swap Currency Rate
+
+* **Endpoint:** `/user/swap/rate`
+* **Method:** `POST`
+* **Description:** Retrieves the exchange rate for a currency swap.
+* **Request Body:**
+```json
+{
+  "from": "currency_code", // E.g., USD
+  "to": "currency_code",   // E.g., NGN
+  "amount": 100           // Amount to swap
+}
+```
+* **Response Body:**
+```json
+{
+    "ok": true,
+    "status": "success",
+    "message": "calculated_amount currency_code" // E.g., "57000 NGN"
+}
+
+```
+
+
+### 12. Swap Currency Post
+
+* **Endpoint:** `/user/swap`
+* **Method:** `POST`
+* **Description:** Executes a currency swap.
+* **Request Body:**
+```json
+{
+  "from": "currency_code",
+  "to": "currency_code",
+  "amount": 100
+}
+```
+* **Response Body:**
+```json
+{
+  "success": "Currency swap successful"
+}
+```
+
+
+### 13. P2P Transfer
+
+* **Endpoint:** `/user/p2p`
+* **Method:** `GET`
+* **Description:** Retrieves the user's P2P transfer history.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+  "pageTitle": "P2P Transfer",
+  "p2plog": []
+}
+```
+
+
+### 14. P2P Transfer Post
+
+* **Endpoint:** `/user/p2p`
+* **Method:** `POST`
+* **Description:** Executes a P2P transfer.
+* **Request Body:**
+```json
+{
+  "pin": "transaction_password",
+  "recipient": "recipient_username_or_email",
+  "amount": 100,
+  "wallet": "balance" or "ref_wallet"
+}
+```
+* **Response Body:**
+```json
+{
+  "success": "P2P fund transfer completed successfully"
+}
+```
+
+
+### 15. Login Earn
+
+* **Endpoint:** `/user/login-earn`
+* **Method:** `POST`
+* **Description:** Claims the daily login bonus.
+* **Request Body:** None.
+* **Response Body (Success):**
+```json
+{
+    "success": "Daily income earned successfully. Please come back tomorrow to earn more."
+}
+```
+
+* **Response Body (Error):**
+```json
+
+{
+    "error": "Sorry, you can’t earn daily passive income at the moment. Come back tomorrow." // Or other error message
+}
+```
+
+
+
+### 16. Withdraw Money (GET)
+
+* **Endpoint:** `/user/withdraw`
+* **Method:** `GET`
+* **Description:** Retrieves available withdrawal methods and the user's withdrawal history.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+    "pageTitle": "Withdraw Money",
+    "withdrawMethod": [],
+    "withdraws": []
+}
+```
+
+### 17. Withdraw Money (POST)
+
+* **Endpoint:** `/user/withdraw`
+* **Method:** `POST`
+* **Description:** Creates a new withdrawal request.
+* **Request Body:**
+```json
+{
+    "methodId": { "id": withdraw_method_id }, 
+    "amount": 100
+}
+```
+* **Response Body:**
+```json
+{
+    "success": "Withdrawal request created successfully. Proceed to preview."
+}
+```
+
+
+### 18. Withdraw Preview
+
+* **Endpoint:** `/user/withdraw/preview`
+* **Method:** `GET`
+* **Description:** Retrieves the details of a pending withdrawal request.
+* **Request Body:** None (Uses session data for the withdrawal TRX).
+* **Response Body:**
+```json
+{
+    "pageTitle": "Withdraw Preview",
+    "withdraw": {
+        // Withdrawal details
     }
 }
 
 ```
 
-**Explanation:** This endpoint provides a comprehensive overview of the user's dashboard, including balances, transactions, referrals, recent logins, top earners, and usage statistics.
+
+
+### 19. Withdraw Submit
+
+* **Endpoint:** `/user/withdraw/submit`
+* **Method:** `POST`
+* **Description:** Submits a withdrawal request for processing.
+* **Request Body:**  Depends on the chosen withdrawal method. May include fields like account number, wallet address, etc.
+* **Response Body:**
+```json
+{
+    "success": "Withdraw request sent successfully"
+}
+```
 
 
 
-## Submit Profile Endpoint
+### 20. Gift Card History
 
-**Endpoint:** `/user/profile/submit`
+* **Endpoint:** `/user/giftcard/history`
+* **Method:** `GET`
+* **Description:** Retrieves the user's gift card purchase history.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+    "pageTitle": "Giftcard History",
+    "log": []
+}
+```
 
-**PHP Route:** `Route::post('user/profile/submit', 'Api\UserController@submitProfile');`
 
-**Request:**
 
-* **Method:** POST
-* **Headers:**
-    * `Authorization: Bearer <access_token>`
-    * `Content-Type: application/json` (Or `multipart/form-data` if image included)
-* **Body:**
+### 21. Gift Card Details
 
+* **Endpoint:** `/user/giftcard/details/{id}`
+* **Method:** `GET`
+* **Description:** Retrieves the details of a specific gift card purchase.
+* **Request Body:** None.
+* **Response Body:**
+```json
+{
+  "pageTitle": "Giftcard Details",
+  "card": {}
+}
+```
+
+
+
+### 22. Gift Card Redeem Code
+
+* **Endpoint:** `/user/giftcard/redeem/{id}`
+* **Method:** `GET`
+* **Description:** Retrieves the redemption code for a specific gift card.
+* **Request Body:** None.
+* **Response Body:**
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "data": {} // Gift card details including redemption code
+}
+```
+
+
+
+
+### 23. Deposit History
+
+* **Endpoint:** `/user/deposit/history`
+* **Method:** `GET`
+* **Description:** Retrieves the user's deposit history.
+* **Request Body:** None
+* **Response Body:**
+
+```json
+{
+  "pageTitle": "Deposit History",
+  "gatewayCurrency": [],
+  "deposits": []
+}
+```
+
+
+
+### 24. Show 2FA Form
+
+* **Endpoint:** `/user/2fa/form`
+* **Method:** `GET`
+* **Description:** Displays the 2FA setup form with the QR code and secret key.
+* **Request Body:** None
+* **Response Body:**
+
+```json
+{
+  "pageTitle": "2FA Setting",
+  "secret": "your_secret_key",
+  "qrCodeUrl": "qr_code_url"
+}
+```
+
+
+
+
+### 25. Create 2FA
+
+* **Endpoint:** `/user/2fa/create`
+* **Method:** `POST`
+* **Description:** Enables 2FA for the user.
+* **Request Body:**
+```json
+{
+  "key": "your_secret_key",
+  "code": "google_authenticator_code"
+}
+```
+* **Response Body:**
+```json
+{
+  "success": "Google authenticator activated successfully"
+}
+```
+
+
+
+### 26. Disable 2FA
+
+* **Endpoint:** `/user/2fa/disable`
+* **Method:** `POST`
+* **Description:** Disables 2FA for the user.
+* **Request Body:**
+```json
+{
+  "code": "google_authenticator_code"
+}
+```
+* **Response Body:**
+```json
+{
+  "success": "Two-factor authenticator deactivated successfully"
+}
+```
+
+
+
+### 27. Transactions History
+
+* **Endpoint:** `/user/transactions`
+* **Method:** `GET`
+* **Description:**  Retrieves the user's transaction history. Supports filtering by `trx_type` and `remark`.
+* **Request Body:**  (Optional query parameters for filtering)
+```
+trx_type=+/-   // Filter by transaction type (credit/debit)
+remark=deposit/withdrawal/etc. // Filter by transaction remark
+```
+
+* **Response Body:**
+
+```json
+{
+ "pageTitle": "Transactions",
+ "transactions": [],
+ "remarks": []
+}
+```
+
+
+
+### 28. Download Attachment
+
+* **Endpoint:** `/user/attachment/{fileHash}`
+* **Method:** `GET`
+* **Description:** Downloads an attachment file.
+* **Request Body:** None.
+* **Response Body:** File download.
+
+
+### 29. User Data (GET)
+
+* **Endpoint:** `/user/data`
+* **Method:** `GET`
+* **Description:** Retrieves user data for profile completion. Redirects to `/user/home` if profile is already complete.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+  "pageTitle": "Update User Details",
+  "user": {} 
+}
+```
+
+### 30. User Data (POST)
+
+* **Endpoint:** `/user/data`
+* **Method:** `POST`
+* **Description:** Submits user data to complete the profile. Redirects to `/user/home` on successful submission.
+* **Request Body:**
 ```json
 {
     "firstname": "John",
     "lastname": "Doe",
-    "address": "123 Main St",
-    "state": "CA",
-    "zip": "90210",
-    "city": "Los Angeles",
-    "image": "user_image.jpg" // If updating profile image, sent as multipart data.
+    "image": "user_image_file",
+    "address": "street address",
+    "state": "state",
+    "zip": "zip code",
+    "city": "city"
+}
+```
+* **Response Body:**
+```json
+{
+    "success": "Registration process completed successfully",
+    "redirect": "user.home"
+}
+```
+
+
+### 31. Transaction Password Verification
+
+* **Endpoint:** `/user/trxpass`
+* **Method:** `POST`
+* **Description:** Verifies the user's transaction password.
+* **Request Body:**
+```json
+{
+    "password": "user_transaction_password"
+}
+```
+* **Response Body:**
+```json
+{
+    "ok": true,
+    "status": "success",
+    "message": "The password is correct!"
+}
+```
+or
+```json
+{
+    "ok": false,
+    "status": "danger",
+    "message": "The transaction password doesn't match!"
+}
+```
+
+
+
+### 32. Validate Username
+
+* **Endpoint:** `/user/validateusername`
+* **Method:** `POST`
+* **Description:** Validates a given username against existing users.  This endpoint does *not* require authentication.
+* **Request Body:**
+```json
+{
+  "account": "username"
+}
+```
+* **Response Body (if username exists):**
+```json
+{
+  "ok": true,
+  "status": "success",
+  "message": "User Full Name",
+  "image": "user_profile_image_url"
 }
 
 ```
 
-
-**Response (Success - 200):**
-
-* **Headers:**
-    * `Content-Type: application/json`
-* **Body:**
-
+* **Response Body (if username does not exist):**
 ```json
 {
-    "code": 200,
-    "status": "ok",
-    "message": {
-        "success": [
-             "Profile updated successfully."
-        ]
+  "ok": false,
+  "status": "danger",
+  "message": "Invalid Username!"
+}
+```
+
+```
+
+
+```markdown
+# Profile API Documentation
+
+This document details the API endpoints for managing user profiles. All endpoints require authentication using a bearer token in the `Authorization` header.
+
+## Endpoints
+
+### 1. Get Downlines
+
+* **Endpoint:** `/profile/downlines`
+* **Method:** `GET`
+* **Description:** Retrieves the authenticated user's downlines (referrals) and related referral bonus transactions.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+  "status": "success",
+  "data": {
+    "referrals": { // Paginated list of referrals
+        "data": [
+            // Array of User objects representing the referrals
+        ],
+        // ...pagination data
+    },
+    "transactions": { // Paginated list of referral bonus transactions
+        "data": [
+            // Array of Transaction objects 
+        ],
+        // ...pagination data
+    }
+  }
+}
+```
+
+### 2. Get Profile Details
+
+* **Endpoint:** `/profile/details`
+* **Method:** `GET`
+* **Description:** Retrieves the authenticated user's profile details, including 2FA setup information.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+    "status": "success",
+    "data": {
+        "user": {
+            // User object with profile information (id, username, email, firstname, lastname, etc.)
+        },
+        "countries": [
+            // Array of country objects (name, code)
+        ],
+        "2fa": {
+            "secret": "your_secret_key", // For 2FA setup
+            "qr_code_url": "qr_code_url"   // QR code URL for 2FA setup
+        }
     }
 }
 ```
 
-**Response (Validation Error - 200):** *(Should be 422)*
-* **Headers:**
- * `Content-Type: application/json`
-* **Body:** (Example)
+### 3. Update Profile
+
+* **Endpoint:** `/profile/update`
+* **Method:** `POST`
+* **Description:** Updates the authenticated user's profile information.
+* **Request Body:**
 ```json
 {
-    "code": 200, // Should be 422
-    "status": "ok", // Should indicate an error
-    "message": {
-        "error": [
-            "The firstname field is required."
-        ]
-    }
-}
-
-```
-
-
-**Explanation:** This endpoint allows users to update their profile information, including their name, address, and profile image.
-
-
-
-## Submit Password Endpoint
-
-**Endpoint:** `/user/password/submit`
-
-**PHP Route:** `Route::post('user/password/submit', 'Api\UserController@submitPassword');`
-
-**Request:**
-
-* **Method:** POST
-* **Headers:**
-    * `Authorization: Bearer <access_token>`
-    * `Content-Type: application/json`
-* **Body:**
-
-```json
-{
-    "current_password": "OldPassword123",
-    "password": "NewPassword123",
-    "password_confirmation": "NewPassword123"
+    "firstname": "John", // Optional
+    "lastname": "Doe",    // Optional
+    "image": "image_file",  // Optional. File upload
+    "gender": "male/female", // Optional
+    "dob": "YYYY-MM-DD",   // Optional
+    "address": "123 Main St", // Optional
+    "state": "CA",          // Optional
+    "zip": "90210",        // Optional
+    "city": "Los Angeles",  // Optional
+    "country": "US",        // Optional
+    "sn": true/false,       // Optional. SMS notifications
+    "en": true/false        // Optional. Email notifications
 }
 ```
-
-**Response (Success - 200):**
-
-
-* **Headers:**
- * `Content-Type: application/json`
-* **Body:**
+* **Response Body:**
 ```json
 {
-    "code": 200,
-    "status": "ok",
-    "message": {  // Or just message: "..."
-        "success": "Password changes successfully" // Or use the "error" key for wrong password response
+    "status": "success",
+    "message": "Profile updated successfully", // Or a specific message based on what was updated
+    "data": {
+        // Updated User object
     }
 }
 ```
 
 
-**Response (Password Mismatch or Validation Error - 200):** *(Should be 400 or 422 respectively)*
-* **Headers:**
- * `Content-Type: application/json`
-* **Body:** (Example: Password Mismatch)
+### 4. Update Password
+
+* **Endpoint:** `/profile/password/update`
+* **Method:** `POST`
+* **Description:** Updates the authenticated user's password.
+* **Request Body:**
 ```json
 {
-    "code": 200, // Should be 400
-    "status": "ok", // Should be "error"
-    "message": {
-        "error":  "The password doesn't match!" // Or ["The password doesn't match!"] for consistency
-    }
+    "current_password": "current_password",
+    "password": "new_password",
+    "password_confirmation": "new_password"
 }
+```
+* **Response Body:**
+```json
+{
+    "status": "success",
+    "message": "Password updated successfully"
+}
+```
+
+
+### 5. Update Transaction PIN
+
+* **Endpoint:** `/profile/pin/update`
+* **Method:** `POST`
+* **Description:** Updates the authenticated user's transaction PIN.
+* **Request Body:**
+```json
+{
+  "password": "account_password", // Required for verification
+  "pin": "new_transaction_pin"
+}
+```
+* **Response Body:**
+```json
+{
+  "status": "success",
+  "message": "Transaction PIN updated successfully"
+}
+```
+
+
+### 6. Deactivate Account
+
+* **Endpoint:** `/profile/deactivate`
+* **Method:** `POST`
+* **Description:** Deactivates the authenticated user's account.
+* **Request Body:**
+```json
+{
+    "password": "account_password" // Required for verification
+}
+```
+* **Response Body:**
+```json
+{
+    "status": "success",
+    "message": "Account deactivated successfully"
+}
+```
 
 ```
 
 
-**Explanation:**  This endpoint enables users to change their password. It requires the current password for verification.
+
+
+
+
+
+
+
 
 
 ## Deposit Methods Endpoint
