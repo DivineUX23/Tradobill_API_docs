@@ -2326,7 +2326,7 @@ or errors for invalid source wallet, or if the amount exceeds the min/max limits
 
 
 
-```
+
 These API endpoints provide functionalities for managing cryptocurrencies, including retrieving rates, managing wallets, validating addresses, calculating exchange amounts, and swapping crypto for USD.  Be sure to handle potential errors appropriately in your application.
 
 
@@ -3145,7 +3145,6 @@ This document details the API endpoints for Cable TV functionalities.  All endpo
 
 
 
-```
 
 
 
@@ -3367,7 +3366,6 @@ This document details the API endpoints for purchasing educational services (e.g
 * **Request Body:** None
 * **Response Body:**  Same as the `history` part of the `/education/buy` response. This redundancy should be removed.
 
-```
 
 
 
