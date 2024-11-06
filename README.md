@@ -2628,6 +2628,179 @@ This document details the API endpoints for selling cryptocurrency.  All endpoin
 
 
 
+
+
+# Internet/SME Data API Documentation
+
+This document details the API endpoints for purchasing internet data plans. All endpoints require authentication using a bearer token in the `Authorization` header.
+
+## Endpoints
+
+
+### 1. Get Internet Data Operators
+
+* **Endpoint:** `/internet/operators`
+* **Method:** `GET`
+* **Description:** Retrieves the available internet data operators.
+* **Request Body:** None
+* **Response Body:**
+
+```json
+{
+  "status": true,
+  "message": "Network Fetched",
+  "data": {
+    "code": "00", 
+    "response": [
+      {"name": "MTN"},
+      {"name": "Airtel"},
+      {"name": "Glo"},
+      {"name": "9Mobile"}
+    ]
+  }
+}
+
+```
+
+
+
+### 2. Get Operator Plans
+
+
+
+* **Endpoint:** `/internet/operator-plans/{networkid}`
+* **Method:** `GET`
+* **Description:** Retrieves the available data plans for a specific operator using their Network ID.  Reads data from the `n3tdata.json` file.
+
+* **Request Body:** None
+* **Response Body (Success):**
+```json
+{
+    "status": true,
+    "message": "Plans retrieved successfully",
+    "data": {
+        "networkid": "1",  // The requested network ID
+        "plans": [ // Array of plans for this network (from n3tdata.json).  Structure will depend on your json file
+            {
+                "network": "MTN",
+                "plan_name": "Data Plan 1",
+                "plan_id": "mtn_plan_1",
+                "data_amount": "1GB",
+                "validity": "30 Days",
+                "price": 1000  
+            },
+            // ... other plans for the requested network
+        ]
+    }
+}
+
+```
+* **Response Body (Network Not Found):**
+
+```json
+{
+    "status": false,
+    "message": "Network not found"
+}
+```
+
+
+
+
+### 3. Get Internet Packages and Transaction History
+
+* **Endpoint:** `/internet/packages`
+* **Method:** `GET`
+* **Description:** Retrieves the available internet packages (same as `/internet/operators`) and the authenticated user's internet purchase history.
+* **Request Body:** None
+
+* **Response Body:**
+```json
+{
+ "status": true,
+ "message": "Internet packages retrieved successfully",
+ "data": {
+     "networks": [
+             {"name": "MTN", "logo":"mtn.png", "networkid": "1"},
+             {"name": "AIRTEL", "logo":"airtel.jpeg", "networkid":"2"},
+             {"name": "GLO", "logo":"glo.jpeg", "networkid":"3"},
+             {"name": "9MOBILE", "logo":"9mobile.jpeg", "networkid":"4"}
+     ],
+     "transactions": { // Paginated transaction history.
+         "data": [
+             // ... Array of Order objects for internet data purchases.
+         ],
+         // ... pagination info
+     }
+ }
+}
+```
+
+
+
+### 4. Purchase Internet Data
+
+* **Endpoint:** `/internet/purchase`
+* **Method:** `POST`
+* **Description:** Purchases an internet data plan using the N3T Data API.
+* **Request Body:**
+```json
+{
+  "password": "user_transaction_pin",
+  "amount": 1500,           // Price of the data plan
+  "data_plan": "plan_id",    //  The ID of the data plan (from the /operator-plans response).
+  "networkname": "MTN",      // The name of the network. Important: should match the network in n3tdata.json
+  "phone": "recipient_phone_number",
+  "wallet": "main",          //  (Currently, only the 'main' wallet is used in the code.)
+  "networkid": "1"            // Network ID. Important: should match the network IDs in the $networks array of the getOperatorPlans method.
+}
+
+```
+
+
+
+* **Response Body (Success):**
+
+```json
+{
+    "status": true,
+    "message": "Successful", // Message from N3T Data API
+    "data": {
+        "order_id": "request_id",     // Request ID/Transaction ID
+        "order_details": {/* ... full response from N3T Data API */} 
+    }
+}
+
+```
+
+* **Response Body (Error - Validation, Authentication, Balance):**
+```json
+{
+  "status": false,
+  "message": "Error message" //  Validation errors, incorrect password, or insufficient balance.
+}
+```
+
+
+
+* **Response Body (Error - N3T Data API Issues):**
+```json
+{
+ "status": false,
+ "message": "Error message from N3T Data API"  // Includes the API's error message.
+}
+```
+
+
+
+
+
+
+
+
+
+
+
 # Airtime API Documentation
 
 This document details the API endpoints for purchasing airtime. All endpoints require authentication using a bearer token in the `Authorization` header.
@@ -2752,7 +2925,6 @@ This document details the API endpoints for purchasing airtime. All endpoints re
 
 
 
-```markdown
 # Cable TV API Documentation
 
 This document details the API endpoints for Cable TV functionalities.  All endpoints require authentication using a bearer token in the `Authorization` header.
@@ -3225,6 +3397,213 @@ This document details the API endpoints for purchasing educational services (e.g
     // ... more countries
 ]
 ```
+
+
+
+
+
+
+# Gift Card API Documentation
+
+This document details the API endpoints for buying and selling gift cards. All endpoints require authentication using a bearer token in the `Authorization` header, and users must have completed KYC verification.
+
+## Endpoints
+
+### 1. Get Available Gift Cards, Transactions, and Vouchers
+
+* **Endpoint:** `/giftcards`
+* **Method:** `GET`
+* **Description:** Retrieves available gift cards, the user's gift card transaction history, and voucher information.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+  "status": "success",
+  "data": {
+    "currencies": [
+      // ... Array of available Giftcard objects
+      {
+          "id": 1,
+          "name": "Amazon", // Gift card name
+          "image": "amazon.png", // Gift card image
+          // ...other gift card details
+      }
+    ],
+    "transactions": { // Paginated transaction history
+        "data": [
+            // ... Array of Giftcardsale objects
+            {
+                // Details of each transaction
+            }
+
+        ],
+        // ... pagination details
+    },
+    "vouchers": { // Paginated voucher information
+        "data": [
+            // Array of Voucher objects
+        ],
+        // ...pagination details
+    }
+  }
+}
+```
+
+### 2. Get Gift Card Types
+
+* **Endpoint:** `/giftcards/types`
+* **Method:** `POST`
+* **Description:** Retrieves the available types (e.g., denominations, regions) for a specific gift card.
+* **Request Body:**
+```json
+{
+    "card_id": "giftcard_id",
+    "amount": 100  // Amount in USD for which to get types
+}
+
+```
+
+* **Response Body (Success):**
+```json
+{
+  "status": "success",
+  "data": {
+    "card": { // Giftcard details
+        // ...
+    },
+    "types": [
+      // ... Array of Giftcardtype objects for the selected card
+        {
+            "id": 1,
+            "name": "$100 - USA", // Example gift card type
+            "card_id": 1,       // Gift card this type belongs to
+            "rate": 0.85,      // Exchange rate for selling
+            "buy_rate": 0.9,  //  Exchange rate for buying
+            // ... other type details
+        }
+    ],
+    "amount": 100
+  }
+}
+```
+
+* **Response Body (Error - No Types Found):**
+```json
+{
+  "status": "error",
+  "message": "No giftcard types available for {card_name} at the moment."
+}
+```
+
+
+### 3. Sell Gift Card
+
+* **Endpoint:** `/giftcards/sell`
+* **Method:** `POST`
+* **Description:** Submits a request to sell a gift card.
+* **Request Body:**
+
+```json
+{
+    "card_id": "gift_card_id",
+    "type_id": "gift_card_type_id",
+    "amount": 100, // USD value of the gift card
+    "card_type": "Physical" or "Digital",
+    "code": "gift_card_code", // Required only if card_type is Digital
+    "front_image": "front_image_file", // Required only if card_type is Physical. File upload.
+    "back_image": "back_image_file"   // Required only if card_type is Physical. File upload.
+}
+```
+
+* **Response Body:**
+```json
+{
+  "status": "success",
+  "message": "Giftcard Exchange Request Sent Successfully",
+  "data": { // The created Giftcardsale object
+     // ... details of the sale request
+  }
+}
+```
+
+
+### 4. Buy Gift Card
+
+* **Endpoint:** `/giftcards/buy`
+* **Method:** `POST`
+* **Description:** Submits a request to buy a gift card.
+* **Request Body:**
+```json
+{
+    "card_id": "gift_card_id",
+    "type_id": "gift_card_type_id",
+    "amount": 100,
+    "card_type": "Physical" or "Digital", // Not actually used in the current code for buying, but included in request
+    "country" : "country_name", // Not actually used in the current code for buying, but included in request
+    "currency": "currency_code"  // Not actually used in the current code for buying, but included in request
+}
+```
+* **Response Body:**
+```json
+{
+ "status": "success",
+ "message": "Giftcard Purchase Request Successful",
+ "data": {
+     // ... Giftcardsale details
+ }
+}
+
+```
+
+
+### 5. Sell Gift Card History
+
+* **Endpoint:** `/giftcards/history/sell`
+* **Method:** `GET`
+* **Description:** Retrieves the authenticated user's gift card selling history.
+* **Request Body:** None
+
+* **Response Body:**
+
+```json
+{
+  "status": "success",
+  "data": {   // Paginated data
+      "data": [  // Array of Giftcardsale objects (sell transactions)
+          // ...
+      ],
+      // ...pagination info
+  }
+}
+
+```
+
+
+### 6. Buy Gift Card History
+
+* **Endpoint:** `/giftcards/history/buy`
+* **Method:** `GET`
+* **Description:** Retrieves the authenticated user's gift card buying history.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+    "status": "success",
+    "data": {  // Paginated data
+        "data": [ // Array of Giftcardsale objects (buy transactions)
+            // ...
+        ],
+        //... pagination info
+    }
+}
+
+```
+
+
+
+
+
+
 
 
 
