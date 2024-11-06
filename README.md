@@ -821,18 +821,6 @@ Let's break down and document each endpoint in the provided code.
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-```markdown
 # User API Documentation
 
 This document provides details on the available API endpoints for user functionalities. All endpoints require authentication unless otherwise specified.
@@ -1504,10 +1492,6 @@ or
 }
 ```
 
-```
-
-
-```markdown
 # Profile API Documentation
 
 This document details the API endpoints for managing user profiles. All endpoints require authentication using a bearer token in the `Authorization` header.
@@ -1662,7 +1646,7 @@ This document details the API endpoints for managing user profiles. All endpoint
 }
 ```
 
-```
+
 
 
 
@@ -2006,12 +1990,6 @@ This document details the API endpoints for managing user profiles. All endpoint
 
 
 
-```json
-```
-
-
-
-```markdown
 # Betting API Documentation
 
 This document details the API endpoints for betting functionalities.  All endpoints require authentication using a bearer token in the `Authorization` header.
@@ -2127,22 +2105,6 @@ or
 ```
 
 
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```markdown
 # Crypto API Documentation
 
 This document details the API endpoints for cryptocurrency functionalities. All endpoints require authentication using a bearer token in the `Authorization` header.  The "Crypto Exchange" feature must also be enabled in the admin settings.
@@ -2358,10 +2320,6 @@ These API endpoints provide functionalities for managing cryptocurrencies, inclu
 
 
 
-
-
-
-```markdown
 # Buy Crypto API Documentation
 
 This document details the API endpoints for buying cryptocurrency. All endpoints require authentication using a bearer token in the `Authorization` header.  Additionally, the user must have completed KYC verification and the "Buy Crypto" feature must be enabled in the admin settings.
@@ -2497,7 +2455,6 @@ or other server-side errors if the file upload fails or there's a problem updati
 
 
 
-```markdown
 # Sell Crypto API Documentation
 
 This document details the API endpoints for selling cryptocurrency.  All endpoints require authentication using a bearer token in the `Authorization` header.  Additionally, KYC verification must be completed, and the "Sell Crypto" feature must be enabled in the admin settings.
@@ -2672,127 +2629,6 @@ This document details the API endpoints for selling cryptocurrency.  All endpoin
 
 
 
-
-
-
-
-```markdown
-# Betting API Documentation
-
-This document details the API endpoints for betting functionalities.  All endpoints require authentication using a bearer token in the `Authorization` header.
-
-## Endpoints
-
-
-### 1. Get Wallet Details
-
-* **Endpoint:** `/user/betting/wallet`
-* **Method:** `GET`
-* **Description:** Retrieves the authenticated user's betting wallet details, including available networks, betting history, and current balance.
-* **Request Body:** None
-* **Response Body:**
-```json
-{
-  "status": "success",
-  "data": {
-    "networks": [
-        // Array of betting networks. Structure depends on the 'betting.json' file
-    ],
-    "betting_history": {  // Paginated betting history
-        "data": [
-            // Array of Order objects representing betting transactions
-        ],
-        // ... pagination data
-    },
-    "user_balance": 100  // User's main wallet balance
-  }
-}
-
-```
-
-### 2. Verify Merchant
-
-* **Endpoint:** `/user/betting/verify`
-* **Method:** `POST`
-* **Description:** Verifies a betting merchant/customer ID. Uses the Payscribe API for verification.
-* **Request Body:**
-```json
-{
-    "merchant": "merchant_code",  // Betting provider code (e.g., sportybet)
-    "number": "customer_id"     // Customer ID with the merchant
-}
-```
-* **Response Body (Success):**
-```json
-{
-    "status": "success",
-    "data": {
-        "customer_name": "Customer Name"  // Retrieved from Payscribe API
-    }
-}
-```
-* **Response Body (Error):**
-```json
-{
-    "status": "error",
-    "message": "Invalid Customer ID" // Or other error messages from the Payscribe API
-}
-```
-
-
-### 3. Fund Betting Wallet
-
-* **Endpoint:** `/user/betting/fund`
-* **Method:** `POST`
-* **Description:** Funds the user's betting wallet using their main wallet balance.
-* **Request Body:**
-```json
-{
-    "password": "transaction_password", // User's transaction PIN
-    "amount": 50, // Amount to fund
-    "customer_name": "Customer Name", // Verified customer name from step 2
-    "number": "customer_id",       //  Customer ID/account number with the betting merchant
-    "company": "merchant_code"      // Betting provider code
-}
-```
-* **Response Body (Success):**
-```json
-{
-    "status": "success",
-    "message": "Transaction successful",
-    "data": {
-        "transaction_id": "transaction_code",
-        "amount": 50, // Funded amount
-        "customer_name": "Customer Name",
-        "new_balance": 40 // User's new main wallet balance after funding
-    }
-}
-```
-* **Response Body (Error):**  Possible error responses:
-```json
-{
-    "status": "error",
-    "message": "Invalid transaction password" // Incorrect transaction PIN
-}
-```
-or
-```json
-{
-    "status": "error",
-    "message": "Insufficient wallet balance"
-}
-
-```
-or
-```json
-{
- "status": "error",
- "message": "Error message from Payscribe API" //  E.g., if the funding request to Payscribe fails
-}
-```
-
-
-```
 
 
 
@@ -3254,123 +3090,3 @@ These endpoints follow similar patterns as the previous ones. They handle reques
 
 
 
-
-## Airtime Endpoint
-
-**Endpoint:** `/user/airtime` (Consider a more specific endpoint name like `/user/airtime/providers` or `/user/airtime/history`)
-
-**PHP Route:** `Route::get('user/airtime', 'Api\User\AirtimeController@airtime');`
-
-**Request:**
-
-* **Method:** GET
-* **Headers:**
-    * `Authorization: Bearer <access_token>`
-
-**Response (Success - 200 OK):**
-
-* **Headers:**
-    * `Content-Type: application/json`
-* **Body:**
-
-```json
-{
-    "networks": [
-        {
-            "name": "MTN",
-            "logo": "mtn.png",
-            "networkid": "mtn"
-        },
-        {
-            "name": "AIRTEL",
-            "logo": "airtel.jpeg",
-            "networkid": "airtel"
-        },
-        {
-            "name": "GLO",
-            "logo": "glo.jpeg",
-            "networkid": "glo"
-        },
-        {
-            "name": "9MOBILE",
-            "logo": "9mobile.jpeg",
-            "networkid": "etisalat"
-        }
-    ],
-    "airtimelog": {  // This will be the paginated airtime purchase history
-        "current_page": 1,
-        "data": [
-            // ... airtime purchase records
-        ],
-        // ... pagination details
-    }
-}
-```
-
-**Explanation:** This endpoint returns a list of available airtime network providers and the user's airtime purchase history.  It would be helpful to include the `image_path` in the response for the network logos.
-
-
-
-## Buy Airtime (Local) Endpoint
-
-**Endpoint:** `/user/buy-airtime/local`
-
-**PHP Route:** `Route::post('user/buy-airtime/local', 'Api\User\AirtimeController@buy_airtime_post_local');`
-
-**Request:**
-
-* **Method:** POST
-* **Headers:**
-    * `Authorization: Bearer <access_token>`
-    * `Content-Type: application/json`
-* **Body:**
-
-```json
-{
-    "amount": 50,
-    "operator": "mtn", // networkid
-    "wallet": "main", // or other wallet type
-    "phone": "1234567890",  // Phone number to recharge
-    "password": "user_transaction_password"
-}
-```
-
-
-**Responses:** *(All responses currently use a 200 status code, even for errors, which should be corrected.)*
-
-
-**Response (Success - 200):** *(Should be 201 Created)*
-* Body:
-```json
-{
-    "ok": true,
-    "status": "success",
-    "message": "Transaction Was Successful",
-    "orderid": "unique_order_id"
-}
-```
-
-**Response (Incorrect Password, Insufficient Balance, Processing Error - 400):**
-
-* **Body:** Example (insufficient balance)
-```json
-{
-    "ok": false,
-    "status": "danger",
-    "message": "Insufficient wallet balance"
-}
-```
-
-**Response (VTpass API Error - 400):**
-
-* **Body:** (Example)
-```json
-{
-    "ok": false,
-    "status": "danger",
-    "message": "VTpass error message" // More specific error messages from VTpass would be helpful.
-}
-```
-
-
-**Explanation:**  This endpoint handles the purchase of airtime. It uses the `buy_airtime_post_vtpass` method internally, so the responses and explanations are combined.
