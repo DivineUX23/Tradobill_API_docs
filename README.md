@@ -2497,6 +2497,317 @@ or other server-side errors if the file upload fails or there's a problem updati
 
 
 
+```markdown
+# Sell Crypto API Documentation
+
+This document details the API endpoints for selling cryptocurrency.  All endpoints require authentication using a bearer token in the `Authorization` header.  Additionally, KYC verification must be completed, and the "Sell Crypto" feature must be enabled in the admin settings.
+
+## Endpoints
+
+
+### 1. Get Coin Details (for Selling)
+
+* **Endpoint:** `/user/sell-crypto/details`
+* **Method:** `POST`
+* **Description:** Retrieves details for a specific cryptocurrency, including the current rate and platform's sell rate.
+* **Request Body:**
+```json
+{
+    "coin": "cryptocurrency_id",
+    "amount": 1  // Amount of cryptocurrency to sell (used for rate calculation)
+}
+```
+
+* **Response Body (Success):**
+```json
+{
+  "ok": true,
+  "status": "success",
+  "message": "Asset Price Calculated",
+  "currency": "BTC", // Cryptocurrency symbol
+  "rate": 29500,    //  Current market rate from Coinremitter (if crypto_auto is 1) or the platform's rate
+  "ourrate": 29000 // Platform's sell rate for the cryptocurrency
+}
+
+```
+
+* **Response Body (Error if crypto_auto is 1 and rate lookup fails):**
+```json
+{
+  "ok": false,
+  "status": "error",
+  "message": "Sorry, we cant calculate asset rate at the moment."
+}
+
+```
+
+
+
+### 2. Sell Crypto (Process)
+
+* **Endpoint:** `/user/sell-crypto/process`
+* **Method:** `POST`
+* **Description:**  Initiates the process of selling cryptocurrency.  The process can be automated (using Coinremitter) or manual, depending on the `crypto_auto` setting in the admin panel.
+* **Request Body:**
+```json
+{
+  "pin": "user_transaction_pin",
+  "coin": "cryptocurrency_id",
+  "amount": 0.0025, // Amount of cryptocurrency to sell, in crypto units
+  "wallet": "main" // Wallet to credit the USD equivalent to (Currently only 'main' is supported in code)
+}
+```
+
+
+* **Response Body (Success - Automated Sell,  crypto_auto = 1):**
+```json
+{
+  "ok": true,
+  "status": "success",
+  "message": "Trade Invoice Created Successfully",
+  "data": {  // Data from Coinremitter API
+      "invoice_id": "invoice_code",  // Use this for checking invoice status
+      // ... other Coinremitter data
+  },
+  "auto": true
+}
+
+```
+
+* **Response Body (Success - Manual Sell, crypto_auto = 0):**
+```json
+{
+  "ok": true,
+  "status": "success",
+  "message": "Trade Invoice Created Successfully",
+  "coin": { /* Cryptocurrency details */ },  
+  "trx": "transaction_code",  // Use this for manual confirmation
+  "data": {/* Order details */},  
+  "auto": false 
+}
+```
+
+* **Response Body (Error from Coinremitter when crypto_auto = 1):**
+```json
+{
+    "ok": false,
+    "status": "error",
+    "message": "Error message from Coinremitter"
+}
+```
+* **Response Body (General Error):**
+```json
+{
+    "ok": false,
+    "status": "error",
+    "message": "Error message" // Server-side or other errors
+}
+
+```
+
+
+### 3. Check Sell Order Status (Automated)
+
+* **Endpoint:** `/user/sell-crypto/confirm`
+* **Method:** `POST`
+* **Description:** Checks the status of an automated sell order (when `crypto_auto` is enabled).  Use the `invoice` ID from the `/sell-crypto/process` response.
+* **Request Body:**
+
+```json
+{
+ "coin": "crypto_symbol",  // E.g., BTC
+ "invoice": "invoice_id_from_coinremitter"
+}
+```
+
+* **Response Body (Success - Status updated):**
+
+```json
+{
+ "ok": true,
+ "status": "success",
+ "message": "Invoice Is paid" //  Or other status messages from Coinremitter like "pending", "expired," etc.
+}
+```
+* **Response Body (Error):**
+```json
+{
+    "ok": false,
+    "status": "error",
+    "message": "Invoice Is unpaid"  // or any other message as per response.
+}
+```
+
+
+
+### 4. Confirm Manual Sell Order
+
+* **Endpoint:** `/user/sell-crypto/confirm/manual`
+* **Method:** `POST`
+* **Description:**  Confirms a manual sell order (when `crypto_auto` is disabled) by providing the transaction hash and payment proof.
+* **Request Body:**
+
+```json
+{
+    "trx": "transaction_code",   // The `trx` ID returned from the `/process` endpoint for manual orders
+    "trxhash": "transaction_hash",  // The transaction hash from the blockchain
+    "proof": "proof_of_payment_image" // File upload (optional)
+}
+
+```
+* **Response Body:**
+
+```json
+{
+  "notify": [
+    {
+      "success": "Transaction submitted successfully."
+    }
+  ]
+}
+```
+
+
+
+
+
+
+
+
+
+
+```markdown
+# Betting API Documentation
+
+This document details the API endpoints for betting functionalities.  All endpoints require authentication using a bearer token in the `Authorization` header.
+
+## Endpoints
+
+
+### 1. Get Wallet Details
+
+* **Endpoint:** `/user/betting/wallet`
+* **Method:** `GET`
+* **Description:** Retrieves the authenticated user's betting wallet details, including available networks, betting history, and current balance.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+  "status": "success",
+  "data": {
+    "networks": [
+        // Array of betting networks. Structure depends on the 'betting.json' file
+    ],
+    "betting_history": {  // Paginated betting history
+        "data": [
+            // Array of Order objects representing betting transactions
+        ],
+        // ... pagination data
+    },
+    "user_balance": 100  // User's main wallet balance
+  }
+}
+
+```
+
+### 2. Verify Merchant
+
+* **Endpoint:** `/user/betting/verify`
+* **Method:** `POST`
+* **Description:** Verifies a betting merchant/customer ID. Uses the Payscribe API for verification.
+* **Request Body:**
+```json
+{
+    "merchant": "merchant_code",  // Betting provider code (e.g., sportybet)
+    "number": "customer_id"     // Customer ID with the merchant
+}
+```
+* **Response Body (Success):**
+```json
+{
+    "status": "success",
+    "data": {
+        "customer_name": "Customer Name"  // Retrieved from Payscribe API
+    }
+}
+```
+* **Response Body (Error):**
+```json
+{
+    "status": "error",
+    "message": "Invalid Customer ID" // Or other error messages from the Payscribe API
+}
+```
+
+
+### 3. Fund Betting Wallet
+
+* **Endpoint:** `/user/betting/fund`
+* **Method:** `POST`
+* **Description:** Funds the user's betting wallet using their main wallet balance.
+* **Request Body:**
+```json
+{
+    "password": "transaction_password", // User's transaction PIN
+    "amount": 50, // Amount to fund
+    "customer_name": "Customer Name", // Verified customer name from step 2
+    "number": "customer_id",       //  Customer ID/account number with the betting merchant
+    "company": "merchant_code"      // Betting provider code
+}
+```
+* **Response Body (Success):**
+```json
+{
+    "status": "success",
+    "message": "Transaction successful",
+    "data": {
+        "transaction_id": "transaction_code",
+        "amount": 50, // Funded amount
+        "customer_name": "Customer Name",
+        "new_balance": 40 // User's new main wallet balance after funding
+    }
+}
+```
+* **Response Body (Error):**  Possible error responses:
+```json
+{
+    "status": "error",
+    "message": "Invalid transaction password" // Incorrect transaction PIN
+}
+```
+or
+```json
+{
+    "status": "error",
+    "message": "Insufficient wallet balance"
+}
+
+```
+or
+```json
+{
+ "status": "error",
+ "message": "Error message from Payscribe API" //  E.g., if the funding request to Payscribe fails
+}
+```
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
