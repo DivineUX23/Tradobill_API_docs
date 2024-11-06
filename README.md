@@ -2628,21 +2628,561 @@ This document details the API endpoints for selling cryptocurrency.  All endpoin
 
 
 
+# Airtime API Documentation
+
+This document details the API endpoints for purchasing airtime. All endpoints require authentication using a bearer token in the `Authorization` header.
+
+## Endpoints
+
+### 1. Get Available Networks
+
+* **Endpoint:** `/airtime/networks`
+* **Method:** `GET`
+* **Description:** Retrieves the available airtime networks.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+  "status": "success",
+  "data": [
+    {
+      "name": "MTN",
+      "logo": "mtn.png",
+      "networkid": "mtn"
+    },
+    {
+      "name": "AIRTEL",
+      "logo": "airtel.jpeg",
+      "networkid": "airtel"
+    },
+    {
+      "name": "GLO",
+      "logo": "glo.jpeg",
+      "networkid": "glo"
+    },
+    {
+      "name": "9MOBILE",
+      "logo": "9mobile.jpeg",
+      "networkid": "etisalat"
+    }
+  ]
+}
+
+```
+
+### 2. Airtime Purchase History
+
+* **Endpoint:** `/airtime/history`
+* **Method:** `GET`
+* **Description:** Retrieves the authenticated user's airtime purchase history.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+    "status": "success",
+    "data": { // Paginated data
+        "data": [
+            {
+                // ... Order details for each airtime purchase
+            }
+        ],
+        // ... pagination information (current_page, last_page, etc.)
+    }
+}
+```
+
+
+
+### 3. Purchase Airtime
+
+* **Endpoint:** `/airtime/purchase`
+* **Method:** `POST`
+* **Description:** Purchases airtime for a specified phone number.  Integrates with the VTPass API.
+* **Request Body:**
+```json
+{
+  "password": "user_transaction_pin",
+  "amount": 100,  // Amount of airtime to purchase
+  "operator": "mtn", // Network ID (e.g., mtn, airtel, glo, etisalat)
+  "wallet": "main",  // Wallet to deduct funds from (only 'main' wallet is currently handled in code)
+  "phone": "phone_number"  //  Recipient's phone number
+}
+```
+* **Response Body (Success):**
+```json
+{
+    "status": "success",
+    "message": "Transaction successful",
+    "data": {
+        "transaction_id": "unique_transaction_id"
+    }
+}
+
+```
+
+* **Response Body (Error - Invalid Transaction Password):**
+```json
+{
+ "status": "error",
+ "message": "Invalid transaction password"
+}
+```
+
+* **Response Body (Error - Insufficient Balance):**
+```json
+{
+  "status": "error",
+  "message": "Insufficient wallet balance"
+}
+
+```
+
+
+* **Response Body (Error - VTPass API Issues):**  The following error response structure is used for different VTPass-related issues:
+```json
+{
+    "status": "error",
+    "message": "Service temporarily unavailable"  // Or other VTPass-related error message.
+}
+
+```
 
 
 
 
 
 
+```markdown
+# Cable TV API Documentation
+
+This document details the API endpoints for Cable TV functionalities.  All endpoints require authentication using a bearer token in the `Authorization` header.
+
+## Endpoints
+
+
+### 1. Get Cable TV Operators/Packages
+
+* **Endpoint:** `/cabletv/operators`
+* **Method:** `POST`
+* **Description:** Retrieves the available packages for a specific cable TV provider.  Uses the VTPass API.
+* **Request Body:**
+```json
+{
+  "decoder": "dstv" //  The cable TV provider code (e.g., dstv, gotv, startimes, showmax).  This field determines the provider.
+}
+```
+
+* **Response Body (Success):**
+```json
+{
+    "status": true,
+    "message": "Network operators fetched successfully",
+    "data": { // The 'content' field from the VTPass API response
+        "status": true,
+        "message": "Network Fetched",
+        "image": "image_url",
+        "content": [
+            // ... Array of available packages for the chosen provider
+            {
+                "name": "Package Name",
+                "variation_code": "package_code",
+                "variation_amount": 1500,  // Price of the package
+                // ... other package details
+            }
+        ]
+    }
+}
+
+```
+
+* **Response Body (Error):**
+```json
+{
+  "status": false,
+  "message": "Failed to fetch network operators",
+  "error": "Error details" // More specific error information if available.
+}
+
+```
+
+
+
+### 2. Get Cable TV Networks and Purchase History
+
+* **Endpoint:** `/cabletv/buy`
+* **Method:** `GET`
+* **Description:** Retrieves the available cable TV networks and the user's purchase history.
+* **Request Body:** None
+* **Response Body (Success):**
+
+```json
+{
+    "status": true,
+    "message": "CableTV data retrieved successfully",
+    "data": {
+        "networks": [
+            {"name": "dstv"},
+            {"name": "gotv"},
+            {"name": "startimes"},
+            {"name": "showmax"}
+        ],
+        "history": {  // Paginated purchase history
+            "data": [
+                // Array of Order objects representing Cable TV purchases.
+            ],
+            // ... pagination details (current_page, last_page, etc.)
+        }
+    }
+}
+
+```
+
+* **Response Body (Error):**
+```json
+{
+    "status": false,
+    "message": "Failed to retrieve CableTV data",
+    "error": "Error details"  //  Specific error message
+}
+```
+
+
+
+### 3. Verify Cable TV Account/Decoder Number
+
+* **Endpoint:** `/cabletv/verify`
+* **Method:** `POST`
+* **Description:** Verifies a cable TV account or decoder number using the VTPass API.
+* **Request Body:**
+```json
+{
+ "decoder": "dstv", // Provider code
+ "number": "decoder_number_or_account_id" //  User's decoder number or account ID.
+}
+```
+
+* **Response Body (Success - Valid Number):**
+```json
+{
+ "ok": true,
+ "status": "success",
+ "message": "Valid Decoder Number",
+ "content": "Customer Name" // Customer's name associated with the account/decoder.
+}
+```
+
+* **Response Body (Error - Invalid Number):**
+```json
+{
+    "ok": false,
+    "status": "danger",
+    "message": "Invalid Decoder Number"
+}
+```
+
+* **Response Body (Error):**
+```json
+{
+    "status": false,
+    "message": "Verification failed",
+    "error": "Error details"  // Details of the error, if available.
+}
+
+```
+
+
+### 4. Purchase Cable TV Subscription
+
+* **Endpoint:** `/cabletv/purchase`
+* **Method:** `POST`
+* **Description:** Purchases a cable TV subscription using the VTPass API.
+* **Request Body:**
+```json
+{
+  "password": "user_transaction_pin",
+  "plan": "variation_code|amount",  //  Package code and amount, separated by a pipe (|)
+  "customername": "Customer Name", // Customer's name (from verification)
+  "number": "decoder_number",    // Decoder number or account ID
+  "wallet": "main",             // Funding wallet (currently 'main' is assumed in code)
+  "decoder": "dstv"             // Provider code
+}
+```
+
+* **Response Body (Success):**
+```json
+{
+  "ok": true,
+  "status": "success",
+  "message": "Transaction Was Successful",
+  "orderid": "transaction_id" 
+}
+```
+
+
+* **Response Body (Error - Validation):**
+```json
+{
+  "status": false,
+  "message": "Validation failed",
+  "errors": {
+    // Validation errors
+  }
+}
+```
+
+* **Response Body (Error - Authentication or Balance):**
+```json
+{
+  "status": false,
+  "message": "Invalid transaction password"  // or "Insufficient wallet balance"
+}
+```
+
+
+
+* **Response Body (Error - VTPass API Issues):** These errors will have slightly different formats depending on where the error occurred within the VTPass API interaction.  Example:
+```json
+{
+    "ok": false,
+    "status": "danger",
+    "message": "Error details from VTPass or server side" 
+}
+```
+
+
+### 5. Cable TV Purchase History (Duplicate)
+
+* **Endpoint:** `/cabletv/history`
+* **Method:** `GET`
+* **Description:** This endpoint is a duplicate of the `/cabletv/buy` (GET) endpoint and serves the same function.
+* **Request Body:** None
+* **Response Body:** Same as `/cabletv/buy` (GET).  This redundancy should be removed.
+
+
+
+```
 
 
 
 
 
+# Education Bills API Documentation
+
+This document details the API endpoints for purchasing educational services (e.g., WAEC, JAMB). All endpoints require authentication using a bearer token in the `Authorization` header.
+
+## Endpoints
+
+### 1. Get Education Services and Purchase History
+
+* **Endpoint:** `/education/buy`
+* **Method:** `GET`
+* **Description:** Retrieves the available education services and the user's purchase history.
+* **Request Body:** None
+* **Response Body (Success):**
+```json
+{
+    "status": true,
+    "message": "Education bills data retrieved successfully",
+    "data": {
+        "networks": [
+            {"name": "WAEC Registration", "code": "waec-registration"},
+            {"name": "WAEC Result Pin Checker", "code": "waec"},
+            {"name": "JAMB PIN Vending", "code": "jamb"}
+        ],
+        "history": { // Paginated purchase history
+            "data": [
+              // ... Order objects representing education purchases
+            ],
+            // ... pagination details
+        }
+    }
+}
+
+```
+
+* **Response Body (Error):**
+```json
+{
+  "status": false,
+  "message": "Failed to retrieve education bills data",
+  "error": "Error details" //  Specific error message
+}
+```
+
+
+
+### 2. Get Education Service Operators/Packages
+
+* **Endpoint:** `/education/operators`
+* **Method:** `POST`
+* **Description:** Retrieves the available packages or variations for a specific educational service using the VTPass API.
+* **Request Body:**
+```json
+{
+    "code": "service_code"  // E.g., "waec", "jamb", "waec-registration"
+}
+
+```
+
+* **Response Body (Success):**
+```json
+{
+ "status": true,
+ "message": "Network Fetched",
+ "image": "image_url",
+ "content": [  // Variations or packages available for the service
+     {
+         "name": "Package name",
+         "variation_code": "variation_code",  // Use this in the purchase request
+         "variation_amount": 1000, // Price
+         //... other variation details
+     },
+      // ... more variations
+ ],
+ "fee": "convenience_fee", // Convenience fee, if any
+ "serviceid": "service_id" // Service ID
+}
+```
+
+
+
+* **Response Body (Error - Validation):**
+```json
+{
+    "status": false,
+    "message": "Validation failed",
+    "errors": {
+        // ... validation errors
+    }
+}
+```
+
+* **Response Body (Error - VTPass API or Server):**
+```json
+{
+  "status": false,
+  "message": "Failed to fetch operators",
+  "error": "Error details"
+}
+```
 
 
 
 
+### 3. Verify JAMB Number
+
+* **Endpoint:** `/education/verify`
+* **Method:** `POST`
+* **Description:** Verifies a JAMB registration number using the VTPass API.  Currently only supports JAMB verification.
+* **Request Body:**
+
+```json
+{
+  "verifyjamb": "jamb_registration_number" 
+}
+
+```
+
+
+
+* **Response Body (Success - Valid Number):**
+```json
+{
+ "ok": true,
+ "status": "success",
+ "message": "Valid Jamb Number",
+ "content": "Customer Name"  //  (if available from VTPass)
+}
+
+```
+
+* **Response Body (Error - Invalid Number):**
+```json
+{
+  "ok": false,
+  "status": "danger",
+  "message": "Invalid Jamb Number"
+}
+
+```
+
+* **Response Body (Error-Validation):**
+```json
+{
+    "status": false,
+    "message": "Validation failed",
+    "errors": {
+        // ... validation errors
+    }
+}
+```
+
+
+
+### 4. Purchase Education Service
+
+* **Endpoint:** `/education/purchase`
+* **Method:** `POST`
+* **Description:** Purchases an education service (WAEC, JAMB, etc.) using the VTPass API.
+* **Request Body:**
+
+```json
+{
+    "password": "user_transaction_pin",
+    "network": "network_code",  // E.g., waec, jamb, waec-registration
+    "plan": "variation_code|amount", // The 'variation_code' from /operators and the price, separated by |
+    "serviceid": "service_id"       //  The 'serviceID' from /operators 
+}
+```
+
+* **Response Body (Success):**
+```json
+{
+ "ok": true,
+ "status": "success",
+ "message": "Transaction Was Successfull",
+ "orderid": "transaction_id"
+}
+
+```
+
+* **Response Body (Error - Validation or Authentication):**
+```json
+{
+ "status": false,
+ "message": "Validation failed" // Or "Invalid transaction password"
+ "errors": { // ...validation errors if applicable }
+}
+```
+* **Response Body (Error - Insufficient Balance):**
+
+```json
+{
+    "status": false,
+    "message": "Insufficient wallet balance"
+}
+```
+
+
+* **Response Body (Error - VTPass API Issues):**  Similar to CableTV, these responses can vary slightly:
+```json
+{
+    "ok": false,
+    "status": "danger",
+    "message": "Error message from VTPass or the server"
+}
+```
+
+
+### 5. Education Purchase History (Duplicate)
+
+* **Endpoint:** `/education/history`
+* **Method:** `GET`
+* **Description:**  This is a duplicate of the `/education/buy` (GET) endpoint's history section. The `/education/buy` endpoint already returns purchase history, so this endpoint is redundant.
+* **Request Body:** None
+* **Response Body:**  Same as the `history` part of the `/education/buy` response. This redundancy should be removed.
+
+```
 
 
 
