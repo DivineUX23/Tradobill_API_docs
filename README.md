@@ -472,7 +472,6 @@ Tradobill API doc
 
 
 
-Let's break down and document each endpoint in the provided code.
 
 ## Authorization Check Endpoint
 
@@ -1185,7 +1184,7 @@ All endpoints except `/user/validateusername` require a valid bearer token in th
 * **Request Body:**
 ```json
 {
-    "methodId": { "id": withdraw_method_id }, 
+    "methodId": #withdraw_method_id", #example 3
     "amount": 100
 }
 ```
@@ -1193,6 +1192,8 @@ All endpoints except `/user/validateusername` require a valid bearer token in th
 ```json
 {
     "success": "Withdrawal request created successfully. Proceed to preview."
+    "data" :
+	{'trx' : "trx_string"}
 }
 ```
 
@@ -1202,7 +1203,13 @@ All endpoints except `/user/validateusername` require a valid bearer token in th
 * **Endpoint:** `/user/withdraw/preview`
 * **Method:** `GET`
 * **Description:** Retrieves the details of a pending withdrawal request.
-* **Request Body:** None (Uses session data for the withdrawal TRX).
+* **Request Body:**
+ ```json
+{
+    "trx": "trx", #trx string code from previous response
+}
+```
+.
 * **Response Body:**
 ```json
 {
@@ -1221,7 +1228,13 @@ All endpoints except `/user/validateusername` require a valid bearer token in th
 * **Endpoint:** `/user/withdraw/submit`
 * **Method:** `POST`
 * **Description:** Submits a withdrawal request for processing.
-* **Request Body:**  Depends on the chosen withdrawal method. May include fields like account number, wallet address, etc.
+* **Request Body:**  
+ ```json
+{
+    "trx": "trx", #trx string code from previous response
+}
+```
+
 * **Response Body:**
 ```json
 {
@@ -1999,7 +2012,7 @@ This document details the API endpoints for betting functionalities.  All endpoi
 
 ### 1. Get Wallet Details
 
-* **Endpoint:** `/user/betting/wallet`
+* **Endpoint:** `/betting/wallet`
 * **Method:** `GET`
 * **Description:** Retrieves the authenticated user's betting wallet details, including available networks, betting history, and current balance.
 * **Request Body:** None
@@ -2025,14 +2038,14 @@ This document details the API endpoints for betting functionalities.  All endpoi
 
 ### 2. Verify Merchant
 
-* **Endpoint:** `/user/betting/verify`
+* **Endpoint:** `/betting/verify`
 * **Method:** `POST`
 * **Description:** Verifies a betting merchant/customer ID. Uses the Payscribe API for verification.
 * **Request Body:**
 ```json
 {
     "merchant": "merchant_code",  // Betting provider code (e.g., sportybet)
-    "number": "customer_id"     // Customer ID with the merchant
+    "number": "customer_id"     // Customer ID with the merchant (User Id wiht the betting company)
 }
 ```
 * **Response Body (Success):**
@@ -2055,7 +2068,7 @@ This document details the API endpoints for betting functionalities.  All endpoi
 
 ### 3. Fund Betting Wallet
 
-* **Endpoint:** `/user/betting/fund`
+* **Endpoint:** `/betting/fund`
 * **Method:** `POST`
 * **Description:** Funds the user's betting wallet using their main wallet balance.
 * **Request Body:**
@@ -2113,7 +2126,7 @@ This document details the API endpoints for cryptocurrency functionalities. All 
 
 ### 1. Get Crypto Rates
 
-* **Endpoint:** `/user/crypto/rates`
+* **Endpoint:** `/crypto/rates`
 * **Method:** `GET`
 * **Description:** Retrieves the current exchange rates for available cryptocurrencies.
 * **Request Body:** None
@@ -2146,7 +2159,7 @@ This document details the API endpoints for cryptocurrency functionalities. All 
 
 ### 2. Get Crypto Currencies (Same as Rates)
 
-* **Endpoint:** `/user/crypto/currencies`
+* **Endpoint:** `/user/currencies`
 * **Method:** `GET`
 * **Description:** This endpoint appears to be identical to `/user/crypto/rates` and retrieves the same data.
 * **Request Body:** None
@@ -2278,7 +2291,7 @@ or errors for invalid source wallet, or if the amount exceeds the min/max limits
 
 ### 6. Swap Crypto for USD
 
-* **Endpoint:** `/user/crypto/swap/{id}`
+* **Endpoint:** `/crypto/swap/{id}`
 * **Method:** `POST`
 * **Description:** Swaps a specified amount of cryptocurrency for USD, adding the USD to the user's main balance.
 * **Request Body:**
@@ -2328,7 +2341,7 @@ This document details the API endpoints for buying cryptocurrency. All endpoints
 
 ### 1. Get Coin Details
 
-* **Endpoint:** `/user/buy-crypto/details`
+* **Endpoint:** `/crypto/details`
 * **Method:** `POST`
 * **Description:** Retrieves details for a specific cryptocurrency, including its current rate and the platform's buy rate.
 * **Request Body:**
@@ -2367,7 +2380,7 @@ or
 
 ### 2. Buy Crypto (Process)
 
-* **Endpoint:** `/user/buy-crypto/process`
+* **Endpoint:** `/crypto/buy`
 * **Method:** `POST`
 * **Description:** Processes a cryptocurrency purchase.
 * **Request Body:**
@@ -2422,7 +2435,7 @@ or other error responses like "Invalid transaction PIN" or "Insufficient wallet 
 
 ### 3. Confirm Manual Purchase
 
-* **Endpoint:** `/user/buy-crypto/confirm`
+* **Endpoint:** `/crypto/confirm`
 * **Method:** `POST`
 * **Description:** Confirms a manual cryptocurrency purchase by providing wallet address and payment proof. This endpoint is used only if `crypto_auto` is *disabled*.
 * **Request Body:**
@@ -2464,7 +2477,7 @@ This document details the API endpoints for selling cryptocurrency.  All endpoin
 
 ### 1. Get Coin Details (for Selling)
 
-* **Endpoint:** `/user/sell-crypto/details`
+* **Endpoint:** `/sell/coin-details`
 * **Method:** `POST`
 * **Description:** Retrieves details for a specific cryptocurrency, including the current rate and platform's sell rate.
 * **Request Body:**
@@ -2502,7 +2515,7 @@ This document details the API endpoints for selling cryptocurrency.  All endpoin
 
 ### 2. Sell Crypto (Process)
 
-* **Endpoint:** `/user/sell-crypto/process`
+* **Endpoint:** `/sell/process`
 * **Method:** `POST`
 * **Description:**  Initiates the process of selling cryptocurrency.  The process can be automated (using Coinremitter) or manual, depending on the `crypto_auto` setting in the admin panel.
 * **Request Body:**
@@ -2565,7 +2578,7 @@ This document details the API endpoints for selling cryptocurrency.  All endpoin
 
 ### 3. Check Sell Order Status (Automated)
 
-* **Endpoint:** `/user/sell-crypto/confirm`
+* **Endpoint:** `/sell/confirm`
 * **Method:** `POST`
 * **Description:** Checks the status of an automated sell order (when `crypto_auto` is enabled).  Use the `invoice` ID from the `/sell-crypto/process` response.
 * **Request Body:**
@@ -2599,7 +2612,7 @@ This document details the API endpoints for selling cryptocurrency.  All endpoin
 
 ### 4. Confirm Manual Sell Order
 
-* **Endpoint:** `/user/sell-crypto/confirm/manual`
+* **Endpoint:** `/sell/confirm-manual`
 * **Method:** `POST`
 * **Description:**  Confirms a manual sell order (when `crypto_auto` is disabled) by providing the transaction hash and payment proof.
 * **Request Body:**
