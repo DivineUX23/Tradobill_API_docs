@@ -1161,6 +1161,21 @@ All endpoints except `/user/validateusername` require a valid bearer token in th
 
 
 
+### 15. Withdraw Money (GET)
+
+* **Endpoint:** `/user/withdraw/logs`
+* **Method:** `GET`
+* **Description:** Retrieves available withdrawal methods and the user's withdrawal history.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+    "withdraws": []
+}
+```
+
+
+
 ### 16. Withdraw Money (GET)
 
 * **Endpoint:** `/user/withdraw`
@@ -1171,8 +1186,7 @@ All endpoints except `/user/validateusername` require a valid bearer token in th
 ```json
 {
     "pageTitle": "Withdraw Money",
-    "withdrawMethod": [],
-    "withdraws": []
+    "withdrawMethod": []
 }
 ```
 
