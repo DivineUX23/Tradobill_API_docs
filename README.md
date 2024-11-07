@@ -4033,6 +4033,197 @@ This document details the API endpoints for buying and selling gift cards. All e
 
 
 
+# (Prefrences) Site API Documentation
+
+This document details general site-related API endpoints. Some endpoints require authentication while others do not.
+
+## Endpoints
+
+### 1. Get Rates (Crypto & Gift Cards)
+
+* **Endpoint:** `/rates`
+* **Method:** `GET`
+* **Description:** Retrieves the current rates for cryptocurrencies and gift cards.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+    "status": true,
+    "data": {
+        "coins": [
+            // Array of Cryptocurrency objects with rate information
+        ],
+        "giftcards": [
+            // Array of Giftcard objects with their types and rates
+        ]
+    }
+}
+```
+
+### 2. Get Page Content
+
+* **Endpoint:** `/pages/{slug}`
+* **Method:** `GET`
+* **Description:** Retrieves the content of a specific page based on its slug.
+* **Request Body:** None (slug in URL)
+* **Response Body:**
+```json
+{
+  "status": true,
+  "data": {
+    "title": "Page Title",
+    "sections": [
+        // Array of page sections (content depends on your setup)
+    ]
+  }
+}
+```
+
+### 3. Subscribe to Newsletter
+
+* **Endpoint:** `/subscribe`
+* **Method:** `POST`
+* **Description:** Subscribes a user to the newsletter.
+* **Request Body:**
+```json
+{
+  "email": "user_email@example.com"
+}
+```
+* **Response Body (Success):**
+```json
+{
+  "status": true,
+  "message": "Thanks for subscribing"
+}
+```
+* **Response Body (Error - Validation):**
+```json
+{
+ "status": false,
+ "errors": {
+     "email": [
+         "The email has already been taken." // Or other validation errors
+     ]
+ }
+}
+```
+
+### 4. Submit Contact Form
+
+* **Endpoint:** `/contact`
+* **Method:** `POST`
+* **Description:** Submits a contact form message. Creates a support ticket.  Authentication is not required, but if authenticated, the `user_id` is associated with the ticket.
+
+* **Request Body:**
+```json
+{
+ "name": "User Name",
+ "email": "user_email@example.com",
+ "subject": "Contact Form Subject",
+ "message": "Contact form message content"
+}
+```
+* **Response Body (Success):**
+```json
+{
+    "status": true,
+    "message": "Ticket created successfully",
+    "data": {
+        "ticket_id": "generated_ticket_number"
+    }
+}
+
+```
+
+* **Response Body (Error - Validation):**
+```json
+{
+ "status": false,
+ "errors": {
+     // ... validation error messages
+ }
+}
+```
+
+
+### 5. Track Order
+
+* **Endpoint:** `/track/order`
+* **Method:** `POST`
+* **Description:** Tracks an order by email and order ID.
+* **Request Body:**
+```json
+{
+ "email": "user_email@example.com",
+ "orderid": "order_id"
+}
+
+```
+* **Response Body (Success):**
+```json
+{
+    "status": true,
+    "message": "Order Found",
+    "data": {
+        "orders": [  // Array of matching orders (there might be multiple with the same order ID)
+            {
+                "product_name": "Product Name",
+                "price": 100,
+                "quantity": 1,
+                "currency": "USD",
+                "status": "pending",   // Or other status values
+                "created_at": "2024-07-29T14:00:00.000000Z"
+            }
+            // ...more orders if applicable
+        ]
+    }
+}
+
+```
+
+
+* **Response Body (Error - Validation, Invalid Email, or Order Not Found):**  Standard error responses as in other endpoints.
+
+
+
+### 6. Blog Details
+
+* **Endpoint:** `/blog/{id}/{slug}`
+* **Method:** `GET`
+* **Description:** Retrieves details of a specific blog post. Increments the view count.
+* **Request Body:** None  (ID and slug in the URL)
+
+* **Response Body:**
+```json
+{
+  "status": true,
+  "data": {
+    "blog": { // The requested blog post data
+        // ... blog details from the 'frontends' table
+    },
+    "recent_blogs": [ // Array of recent blog posts (excluding the current one)
+        // ... data for recent blog posts
+    ]
+  }
+}
+```
+
+
+### 7.  Other Endpoints
+
+The following endpoints are listed in the routes but are not defined in the provided controller code:
+
+* `/blog` (GET):  Should retrieve a list of blog posts.
+* `/policy/{slug}/{id}` (GET): Should retrieve content for a specific policy page.
+* `/cookie-policy` (GET):  Should retrieve the cookie policy content.
+* `/language/{lang}` (POST): Should handle language switching.
+
+
+
+
+
+
 
 ## General Setting Endpoint
 
