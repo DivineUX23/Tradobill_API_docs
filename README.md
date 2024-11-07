@@ -3382,7 +3382,7 @@ This document details API endpoints for utility bill payments (e.g., electricity
 
 ### 1. Get Utility Companies and Purchase History
 
-* **Endpoint:** `/user/utility/buy`
+* **Endpoint:** `utility/buy`
 * **Method:** `GET`
 * **Description:**  Retrieves the supported utility companies and the authenticated user's utility bill payment history.
 * **Request Body:** None
@@ -3408,7 +3408,7 @@ This document details API endpoints for utility bill payments (e.g., electricity
 
 ### 2. Verify Utility Meter Number
 
-* **Endpoint:** `/user/utility/verify`
+* **Endpoint:** `utility/verify`
 * **Method:** `POST`
 * **Description:** Verifies a utility meter number using the VTPass API.
 * **Request Body:**
@@ -3458,7 +3458,7 @@ This document details API endpoints for utility bill payments (e.g., electricity
 
 
 
-* **Endpoint:** `/user/utility/purchase`
+* **Endpoint:** `utility/purchase`
 * **Method:** `POST`
 * **Description:** Pays a utility bill using the VTPass API.
 * **Request Body:**
