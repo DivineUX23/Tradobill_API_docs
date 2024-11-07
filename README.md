@@ -3373,8 +3373,6 @@ This document details the API endpoints for purchasing educational services (e.g
 
 
 
-
-```markdown
 # Utility (Local) API Documentation
 
 This document details API endpoints for utility bill payments (e.g., electricity). All endpoints require authentication using a bearer token in the `Authorization` header.
