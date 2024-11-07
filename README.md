@@ -3545,6 +3545,26 @@ This document details the API endpoints for managing user notifications.  All en
 
 ## Endpoints
 
+
+
+### 0. Get Unread Notification Count
+
+* **Endpoint:** `/notifications/unread-count`
+* **Method:** `GET`
+* **Description:** Retrieves the count of unread notifications for the authenticated user.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+ "status": "success",
+ "data": {
+     "unread_count": 5  // Number of unread notifications
+ }
+}
+```
+
+
+
 ### 1. Get Notifications List (Minimal Data)
 
 * **Endpoint:** `/notifications`
