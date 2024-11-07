@@ -3374,6 +3374,161 @@ This document details the API endpoints for purchasing educational services (e.g
 
 
 
+```markdown
+# Utility (Local) API Documentation
+
+This document details API endpoints for utility bill payments (e.g., electricity). All endpoints require authentication using a bearer token in the `Authorization` header.
+
+## Endpoints
+
+
+### 1. Get Utility Companies and Purchase History
+
+* **Endpoint:** `/user/utility/buy`
+* **Method:** `GET`
+* **Description:**  Retrieves the supported utility companies and the authenticated user's utility bill payment history.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+    "status": "success",
+    "networks": [
+        {"name": "ikeja-electric"},
+        {"name": "eko-electric"},
+        // ... other utility companies
+    ],
+    "utility_logs": { // Paginated history
+        "data": [
+            // Array of Order objects representing utility bill payments
+        ],
+        // ... pagination details
+    }
+}
+
+```
+
+
+### 2. Verify Utility Meter Number
+
+* **Endpoint:** `/user/utility/verify`
+* **Method:** `POST`
+* **Description:** Verifies a utility meter number using the VTPass API.
+* **Request Body:**
+```json
+{
+ "metertype": "prepaid" or "postpaid", // Meter type
+ "company": "utility_company_code",  // E.g., ikeja-electric, eko-electric, etc.
+ "number": "meter_number"             // The meter number to verify.
+}
+
+```
+
+
+* **Response Body (Success):**
+```json
+{
+    "status": "success",
+    "message": "Valid Decoder Number", // VTpass uses Decoder terminology even for electricity
+    "customer_name": "Customer Name"  // Name associated with the meter number, if returned by VTPass.
+}
+```
+
+* **Response Body (Error - Validation):**
+
+```json
+{
+    "message": "The given data was invalid.", // Standard Laravel validation error
+    "errors": {
+        // ... specific validation errors
+    }
+}
+
+```
+
+
+* **Response Body (Error - Verification):**
+```json
+{
+ "status": "error",
+ "message": "Error validating meter number"
+}
+```
+
+
+
+### 3. Pay Utility Bill
+
+
+
+* **Endpoint:** `/user/utility/purchase`
+* **Method:** `POST`
+* **Description:** Pays a utility bill using the VTPass API.
+* **Request Body:**
+```json
+{
+ "trx_password": "user_transaction_pin",
+ "amount": 5000,  //  Bill amount
+ "customername": "Customer Name", // Customer name from verification (if applicable)
+ "number": "meter_number",
+ "metertype": "prepaid" or "postpaid",
+ "wallet": "main",  //  Assumed to be 'main' in current code. Not actively used in processing
+ "company": "utility_company_code" //  E.g., ikeja-electric
+}
+```
+
+
+
+* **Response Body (Success):**
+
+```json
+{
+    "status": "success",
+    "message": "Transaction Was Successful",
+    "order_id": "transaction_id"
+}
+```
+
+* **Response Body (Error - Validation or Authentication):**
+```json
+
+{
+ "status": "error",
+ "message": "The given data was invalid." // or "The password doesn't match!"
+ "errors": { // ...validation errors if applicable }
+}
+
+```
+
+
+* **Response Body (Error - Insufficient Balance):**
+```json
+{
+    "status": "error",
+    "message": "Insufficient wallet balance"
+}
+
+```
+
+
+
+* **Response Body (Error - VTPass API Issues):**
+
+```json
+{
+  "status": "error",
+  "message": "We cant process this request at the moment",
+  "error": {  //  Full VTPass API response for debugging
+     // ...
+  }
+}
+```
+
+
+
+
+
+
+
 
 
 
