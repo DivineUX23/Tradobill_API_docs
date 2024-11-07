@@ -3539,6 +3539,235 @@ This document details API endpoints for utility bill payments (e.g., electricity
 
 
 
+# Notification API Documentation (Version 2)
+
+This document details the API endpoints for managing user notifications.  All endpoints except `/notifications/send` require authentication using a bearer token in the `Authorization` header. The `/notifications/send` endpoint is for admin use only and requires admin authentication. This version focuses on optimized data retrieval.
+
+## Endpoints
+
+### 1. Get Notifications List (Minimal Data)
+
+* **Endpoint:** `/notifications`
+* **Method:** `GET`
+* **Description:** Retrieves a paginated list of notifications with minimal information (id, subject, type, created_at, read_status) for the authenticated user.  Also includes the unread notification count.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+ "status": "success",
+ "data": {
+     "notifications": {  // Paginated list of notifications
+         "data": [
+             {
+                "id": 1,
+                "subject": "Notification Subject",
+                "notification_type": "transaction", // Example type
+                "created_at": "2024-07-28T10:00:00.000000Z",
+                "read_status": 0 // 0 for unread, 1 for read
+             },
+             // ... more notifications
+         ],
+         // ... pagination data (current_page, last_page, per_page, etc.)
+     },
+     "unread_count": 3 // Total unread notifications for the user
+ }
+}
+```
+
+
+### 2. Get Notification Detail
+
+* **Endpoint:** `/notifications/{id}`
+* **Method:** `GET`
+* **Description:** Retrieves the full details of a specific notification. Marks the notification as read if it was previously unread.
+* **Request Body:** None (ID passed as a URL parameter)
+* **Response Body (Success):**
+```json
+{
+    "status": "success",
+    "data": {
+        "id": 123,
+        "subject": "Notification Subject",
+        "message": "Full notification message content.",
+        "notification_type": "transaction",
+        "sender": "system",  // Or user ID if sent by a user
+        "sent_from": "sender email or identifier",
+        "sent_to": "recipient email or identifier",
+        "created_at": "2024-07-28T12:30:00.000000Z",
+        "read_status": 1,
+        "read_at": "2024-07-28T13:00:00.000000Z" // Timestamp when marked as read.
+    }
+}
+
+```
+
+* **Response Body (Error - Not Found):**
+```json
+{
+  "status": "error",
+  "message": "Notification not found"
+}
+
+```
+
+
+
+### 3. Search Notifications (Minimal Data)
+
+* **Endpoint:** `/notifications/search`
+* **Method:** `GET`
+* **Description:** Searches notifications (with minimal information) based on subject, date range, and notification type.
+* **Request Body:** (Query Parameters)
+```
+search=keyword          // Required. Minimum 3 characters.
+date_from=YYYY-MM-DD   // Optional. Start date.
+date_to=YYYY-MM-DD     // Optional. End date.
+type=notification_type  // Optional. Filter by notification type.
+```
+
+* **Response Body (Success):**
+
+```json
+{
+    "status": "success",
+    "data": { // Paginated search results
+        "data": [
+            // Array of notifications (minimal data) that match the search criteria.
+        ],
+        //... pagination data
+    }
+}
+```
+* **Response Body (Error - Validation):**
+
+```json
+{
+    "status": "error",
+    "message": "Validation error",
+    "errors": {
+        // ... validation errors
+    }
+}
+
+```
+
+
+
+
+### 4. Get Notification Types
+
+* **Endpoint:** `/notifications/types`
+* **Method:** `GET`
+* **Description:** Retrieves the distinct notification types available for the authenticated user.  This can be used to populate filter options in the UI.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+ "status": "success",
+ "data": [
+     "transaction",
+     "deposit",
+     "withdrawal",
+     // ... other notification types
+ ]
+}
+```
+
+
+### 5. Mark Notification as Read
+
+
+* **Endpoint:** `/notifications/mark-read`
+* **Method:** `POST`
+* **Description:**  Marks a specific notification as read.
+* **Request Body:**
+```json
+{
+    "notification_id": 2  // Id of the notification
+}
+```
+* **Response Body (Success):**
+```json
+{
+ "status": "success",
+ "message": "Notification marked as read"
+}
+```
+
+* **Response Body (Error - Validation):**
+```json
+{
+    "status": "error",
+    "message": "Validation error",
+    "errors": {
+        // ... validation error messages
+    }
+}
+```
+
+* **Response Body (Error - Not Found):**
+```json
+{
+    "status": "error",
+    "message": "Notification not found"
+}
+```
+
+
+
+### 6. Mark All Notifications as Read
+
+* **Endpoint:** `/notifications/mark-all-read`
+* **Method:** `POST`
+* **Description:** Marks all of the authenticated user's notifications as read.
+* **Request Body:** None
+* **Response Body:**
+
+```json
+{
+    "status": "success",
+    "message": "All notifications marked as read"
+}
+```
+
+* **Response Body (Error):**
+
+```json
+{
+    "status": "error",
+    "message": "Error marking all notifications as read",
+    "error": {error_details}
+}
+```
+
+
+
+### 7. Delete Notification
+
+* **Endpoint:** `/notifications/{id}`
+* **Method:** `DELETE`
+* **Description:** Deletes a specific notification for the authenticated user.
+* **Request Body:** None (ID in URL)
+* **Response Body (Success):**
+```json
+{
+  "status": "success",
+  "message": "Notification deleted successfully"
+}
+```
+
+* **Response Body (Error - Validation or Not Found):** Standard error responses as shown in previous endpoints.
+
+
+### 8. Send Notifications (Admin Only) (Not changed)
+
+* This endpoint's functionality remains unchanged from the previous version.  Refer to the previous documentation for details.
+
+
+
+
+
+
 
 
 
