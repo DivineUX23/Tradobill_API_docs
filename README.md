@@ -1161,98 +1161,16 @@ All endpoints except `/user/validateusername` require a valid bearer token in th
 
 
 
-### 15. Withdraw Money (GET)
+### 15. Withdraw History (GET)
 
 * **Endpoint:** `/user/withdraw/logs`
 * **Method:** `GET`
-* **Description:** Retrieves available withdrawal methods and the user's withdrawal history.
+* **Description:** Retrieves user's withdrawal history.
 * **Request Body:** None
 * **Response Body:**
 ```json
 {
     "withdraws": []
-}
-```
-
-
-
-### 16. Withdraw Money (GET)
-
-* **Endpoint:** `/user/withdraw`
-* **Method:** `GET`
-* **Description:** Retrieves available withdrawal methods and the user's withdrawal history.
-* **Request Body:** None
-* **Response Body:**
-```json
-{
-    "pageTitle": "Withdraw Money",
-    "withdrawMethod": []
-}
-```
-
-### 17. Withdraw Money (POST)
-
-* **Endpoint:** `/user/withdraw`
-* **Method:** `POST`
-* **Description:** Creates a new withdrawal request.
-* **Request Body:**
-```json
-{
-    "methodId": #withdraw_method_id", #example 3
-    "amount": 100
-}
-```
-* **Response Body:**
-```json
-{
-    "success": "Withdrawal request created successfully. Proceed to preview."
-    "data" :
-	{'trx' : "trx_string"}
-}
-```
-
-
-### 18. Withdraw Preview
-
-* **Endpoint:** `/user/withdraw/preview`
-* **Method:** `GET`
-* **Description:** Retrieves the details of a pending withdrawal request.
-* **Request Body:**
- ```json
-{
-    "trx": "trx", #trx string code from previous response
-}
-```
-.
-* **Response Body:**
-```json
-{
-    "pageTitle": "Withdraw Preview",
-    "withdraw": {
-        // Withdrawal details
-    }
-}
-
-```
-
-
-
-### 19. Withdraw Submit
-
-* **Endpoint:** `/user/withdraw/submit`
-* **Method:** `POST`
-* **Description:** Submits a withdrawal request for processing.
-* **Request Body:**  
- ```json
-{
-    "trx": "trx", #trx string code from previous response
-}
-```
-
-* **Response Body:**
-```json
-{
-    "success": "Withdraw request sent successfully"
 }
 ```
 
@@ -1422,7 +1340,7 @@ remark=deposit/withdrawal/etc. // Filter by transaction remark
 
 * **Endpoint:** `/user/data`
 * **Method:** `GET`
-* **Description:** Retrieves user data for profile completion. Redirects to `/user/home` if profile is already complete.
+* **Description:** Retrieves user data for profile completion. Redirects to `/user/home` if profile is already complete. 
 * **Request Body:** None
 * **Response Body:**
 ```json
@@ -1436,7 +1354,7 @@ remark=deposit/withdrawal/etc. // Filter by transaction remark
 
 * **Endpoint:** `/user/data`
 * **Method:** `POST`
-* **Description:** Submits user data to complete the profile. Redirects to `/user/home` on successful submission.
+* **Description:** Submits user data to complete the profile. Redirects to `/user/home` on successful submission. - For users to compelte info after sign up a must
 * **Request Body:**
 ```json
 {
