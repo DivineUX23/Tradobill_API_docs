@@ -1584,20 +1584,22 @@ This document details the API endpoints for managing user profiles. All endpoint
 * **Description:** Updates the authenticated user's profile information.
 * **Request Body:**
 ```json
+
 {
-    "firstname": "John", // Optional
-    "lastname": "Doe",    // Optional
-    "image": "image_file",  // Optional. File upload
-    "gender": "male/female", // Optional
-    "dob": "YYYY-MM-DD",   // Optional
-    "address": "123 Main St", // Optional
-    "state": "CA",          // Optional
-    "zip": "90210",        // Optional
-    "city": "Los Angeles",  // Optional
-    "country": "US",        // Optional
-    "sn": true/false,       // Optional. SMS notifications
-    "en": true/false        // Optional. Email notifications
+  "firstname": "John", // User's first name (optional)
+  "lastname": "Doe", // User's last name (optional)
+  "mobile": "+1234567890", // User's mobile phone number (optional)
+  "country_code": "US", // Country code (optional)
+  "gender": "male", // Gender (optional, must be "male" or "female")
+  "dob": "1990-01-01", // Date of birth (optional, must be a date before today)
+  "image": "base64_encoded_image_string", // Profile image (optional, should be a base64-encoded image string if you're sending as JSON)
+  "address": "123 Main St", // Address (optional)
+  "state": "California", // State (optional)
+  "city": "Los Angeles", // City (optional)
+  "zip": "90001", // ZIP code (optional)
 }
+
+
 ```
 * **Response Body:**
 ```json
