@@ -1679,18 +1679,187 @@ This document details the API endpoints for managing user profiles. All endpoint
 
 
 
+# (Withdrawal) Bank Transfer API Documentation
+
+This document details the API endpoints for bank transfers. All endpoints require authentication using a bearer token in the `Authorization` header, and users must have completed KYC verification.
+
+## Endpoints
+
+### 1. Get Bank Transfer Summary
+
+* **Endpoint:** `/user/bank-transfer/summary`
+* **Method:** `GET`
+* **Description:** Retrieves the authenticated user's bank transfer history and monthly summary data.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+    "status": "success",
+    "data": {
+        "transfer_history": [
+            // Array of Transaction objects representing bank transfers
+        ],
+        "monthly_totals": [
+             0, // January total
+             0, // February total
+             // ... totals for other months
+        ],
+        "months": [
+            "January", "February", "March",  // ... all month names
+        ]
+    }
+}
+```
+
+### 2. Get Bank List
+
+* **Endpoint:** `/user/bank-transfer/get-banks`
+* **Method:** `GET`
+* **Description:** Retrieves a list of supported banks for bank transfers.  The source of bank data depends on the `transfer_provider` setting in the admin panel (Monnify or Strowallet).
+
+* **Request Body:** None
+
+* **Response Body (Success, Using banks.json file if Monnify provider):**
+```json
+{
+ "status": "success",
+ "data": [  // Data from banks.json
+     {"name": "Access Bank", "code": "044"},
+     // ... other bank details
+ ]
+}
+
+```
+
+* **Response Body (Success, using strowallet if Strowallet provider):**
+
+```json
+{
+    "status": "success",
+    "data": [  // Data from Strowallet API:
+        {"bank_name": "Abbey Mortgage Bank", "bank_code": "801"},
+        // ... other bank data
+    ]
+}
+```
+
+
+* **Response Body (Error, if Strowallet API request fails):**
+```json
+{
+ "status": "error",
+ "message": "Error fetching bank list"
+}
+```
+
+
+
+### 3. Validate Bank Account
+
+* **Endpoint:** `/user/bank-transfer/validate-account`
+* **Method:** `POST`
+* **Description:** Validates a bank account number and retrieves the account holder's name. Uses either the Monnify or Strowallet API depending on the admin setting `transfer_provider`.
+
+* **Request Body:**
+```json
+{
+    "bankcode": "bank_code",
+    "account": "account_number"
+}
+```
+
+* **Response Body (Success - Strowallet):**
+```json
+{
+ "status": "success",
+ "data": {
+     "account_name": "Account Holder Name",
+     "session_id": "session_id_from_strowallet"  // Used for subsequent transfer requests
+ }
+}
+```
+* **Response Body (Success- Monnify):**
+```json
+{
+    "status": "success",
+    "data": {
+        "account_name": "Account Holder Name"
+        //, "details" : {} // Full monnify details
+    }
+}
+```
+
+
+* **Response Body (Error):**
+```json
+{
+    "status": "error",
+    "message": "Error: Invalid account details or other error message from API"
+}
+```
+
+* **Response Body (Error - Validation):**  Standard Laravel validation error format.
+
+
+### 4. Initiate Bank Transfer
+
+* **Endpoint:** `/user/bank-transfer/transfer`
+* **Method:** `POST`
+* **Description:** Initiates a bank transfer to the specified account.  Uses either Monnify or Strowallet, depending on admin settings.
+* **Request Body:**
+```json
+{
+ "bankcode": "bank_code",
+ "account": "account_number",
+ "amount": 10000, // Amount to transfer
+ "narration": "Transfer Description",  // Narration or description for the transfer
+ "account_name": "Recipient Name",     //  Account holder's name (from validation step)
+ "bank_name": "Bank Name",           // Name of the recipient's bank
+ "pin": "user_transaction_pin"    // User's transaction PIN
+}
+
+```
+* **Response Body (Success):**
+```json
+{
+  "status": "success",
+  "message": "Transfer successful",
+  "data": {
+      "transaction_id": "unique_transaction_id"
+  }
+}
+
+```
+
+* **Response Body (Error - Validation, Authentication, or Insufficient Balance):** Standard error responses as in other endpoints.
+
+* **Response Body (Error - Transfer API Issues - Monnify):**  
+```json
+{
+ "status": "error",
+ "message": "Error: Transfer failed or error message from monnify API"
+}
+```
+
+* **Response Body (Error - Transfer API Issues - Strowallet):**
+```json
+{
+    "status": "error",
+    "message": "Error: Transfer failed or other error message from Strowallet API"
+}
+```
 
 
 
 
 
 
-## Deposit Methods Endpoint
+# Deposite Endpoints
+
+### 1 Deposit Methods Endpoint
 
 **Endpoint:** `/deposit/methods`
-
-**PHP Route:** `Route::get('deposit/methods', 'Api\PaymentController@depositMethods');`
-
+**Explanation:** This endpoint retrieves the available deposit methods and their associated currencies, along with the base image path for gateway icons.
 **Request:**
 
 * **Method:** GET
@@ -1731,14 +1900,13 @@ This document details the API endpoints for managing user profiles. All endpoint
 
 ```
 
-**Explanation:** This endpoint retrieves the available deposit methods and their associated currencies, along with the base image path for gateway icons.
 
 
-## Deposit Insert Endpoint
+### 2 Deposit Insert Endpoint
 
 **Endpoint:** `/deposit/insert`
 
-**PHP Route:** `Route::post('deposit/insert', 'Api\PaymentController@depositInsert');`
+**Explanation:**  This endpoint initiates a deposit request.  It validates the request, checks for deposit limits, calculates charges, and creates a new deposit record.
 
 **Request:**
 
@@ -1819,17 +1987,13 @@ This document details the API endpoints for managing user profiles. All endpoint
 ```
 
 
-**Explanation:**  This endpoint initiates a deposit request.  It validates the request, checks for deposit limits, calculates charges, and creates a new deposit record.
 
 
-
-## Deposit Confirm Endpoint
+### 3 Deposit Confirm Endpoint
 
 
 **Endpoint:** `/deposit/confirm`
-
-**PHP Route:** `Route::get('deposit/confirm', 'Api\PaymentController@depositConfirm');` (Could also be POST)
-
+**Explanation:** This endpoint confirms the deposit and interacts with the chosen payment gateway to proceed with the payment process. The response may contain a redirect URL or other gateway-specific data.
 
 **Request:**
 
@@ -1907,15 +2071,16 @@ This document details the API endpoints for managing user profiles. All endpoint
 
 
 
-**Explanation:** This endpoint confirms the deposit and interacts with the chosen payment gateway to proceed with the payment process. The response may contain a redirect URL or other gateway-specific data.
 
 
 
 
-## Manual Deposit Confirm Endpoint
+### 4 Manual Deposit Confirm Endpoint
 
 
 **Endpoint:** `/deposit/manual/confirm`
+
+**Explanation:** This endpoint retrieves details for manual deposit confirmation, providing information about the deposit and the chosen manual payment method.
 
 **PHP Route:** `Route::get('deposit/manual/confirm', 'Api\PaymentController@manualDepositConfirm');` (Or POST)
 
@@ -1959,16 +2124,15 @@ This document details the API endpoints for managing user profiles. All endpoint
 **Response (Deposit Not Found or Validation Error):** (Structures similar to previous examples—404 for not found, 422 for validation errors.)
 
 
-**Explanation:** This endpoint retrieves details for manual deposit confirmation, providing information about the deposit and the chosen manual payment method.
 
 
-
-## Manual Deposit Update Endpoint
+### 5 Manual Deposit Update Endpoint
 
 
 **Endpoint:** `/deposit/manual/update`
 
-**PHP Route:** `Route::post('deposit/manual/update', 'Api\PaymentController@manualDepositUpdate');`
+
+**Explanation:** This endpoint updates the manual deposit request with the provided details (which might include uploaded files).  It marks the deposit status as pending and sends notifications.
 
 **Request:**
 
@@ -2012,8 +2176,6 @@ This document details the API endpoints for managing user profiles. All endpoint
 
 
 
-
-**Explanation:** This endpoint updates the manual deposit request with the provided details (which might include uploaded files).  It marks the deposit status as pending and sends notifications.
 
 
 
@@ -3539,7 +3701,7 @@ This document details API endpoints for utility bill payments (e.g., electricity
 
 
 
-# Notification API Documentation (Version 2)
+# Notification API Documentation
 
 This document details the API endpoints for managing user notifications.  All endpoints except `/notifications/send` require authentication using a bearer token in the `Authorization` header. The `/notifications/send` endpoint is for admin use only and requires admin authentication. This version focuses on optimized data retrieval.
 
