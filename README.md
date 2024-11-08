@@ -1687,7 +1687,7 @@ This document details the API endpoints for bank transfers. All endpoints requir
 
 ### 1. Get Bank Transfer Summary
 
-* **Endpoint:** `/user/bank-transfer/summary`
+* **Endpoint:** `/bank-transfer/summary`
 * **Method:** `GET`
 * **Description:** Retrieves the authenticated user's bank transfer history and monthly summary data.
 * **Request Body:** None
@@ -1713,7 +1713,7 @@ This document details the API endpoints for bank transfers. All endpoints requir
 
 ### 2. Get Bank List
 
-* **Endpoint:** `/user/bank-transfer/get-banks`
+* **Endpoint:** `bank-transfer/banks`
 * **Method:** `GET`
 * **Description:** Retrieves a list of supported banks for bank transfers.  The source of bank data depends on the `transfer_provider` setting in the admin panel (Monnify or Strowallet).
 
@@ -1756,7 +1756,7 @@ This document details the API endpoints for bank transfers. All endpoints requir
 
 ### 3. Validate Bank Account
 
-* **Endpoint:** `/user/bank-transfer/validate-account`
+* **Endpoint:** `bank-transfer/validate-account`
 * **Method:** `POST`
 * **Description:** Validates a bank account number and retrieves the account holder's name. Uses either the Monnify or Strowallet API depending on the admin setting `transfer_provider`.
 
@@ -1803,7 +1803,7 @@ This document details the API endpoints for bank transfers. All endpoints requir
 
 ### 4. Initiate Bank Transfer
 
-* **Endpoint:** `/user/bank-transfer/transfer`
+* **Endpoint:** `bank-transfer/transfer`
 * **Method:** `POST`
 * **Description:** Initiates a bank transfer to the specified account.  Uses either Monnify or Strowallet, depending on admin settings.
 * **Request Body:**
