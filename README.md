@@ -3957,38 +3957,6 @@ type=notification_type  // Optional. Filter by notification type.
 
 
 
-## Countries Endpoint
-
-**Endpoint:** `/countries` (Suggest adding an appropriate prefix like `/basic/countries`)
-
-**PHP Route:** `Route::get('countries', 'Api\BasicController@countries');`
-
-**Request:**
-
-* **Method:** GET
-
-**Response (Success - 200):**
-
-* **Headers:**
-    * `Content-Type: application/json`
-* **Body:** (Example – the actual content will depend on the `country.json` file)
-
-```json
-[
-    {
-        "country": "United States",
-        "dial_code": "+1",
-        "code": "US"
-    },
-    {
-        "country": "Canada",
-        "dial_code": "+1",
-        "code": "CA"
-    },
-    // ... more countries
-]
-```
-
 
 
 
@@ -4538,256 +4506,37 @@ return response()->json($this->unauthenticate());
 
 
 
+## Countries Endpoint
 
+**Endpoint:** `/countries` (Suggest adding an appropriate prefix like `/basic/countries`)
 
-
-
-
-
-
-
-######NOT Guaranteed to work
-
-
-
-
-
-
-
-
-
-
-## Withdraw Methods Endpoint
-
-**Endpoint:** `/user/withdraw/methods`
-
-**PHP Route:** `Route::get('user/withdraw/methods', 'Api\UserController@withdrawMethods');`
+**PHP Route:** `Route::get('countries', 'Api\BasicController@countries');`
 
 **Request:**
 
 * **Method:** GET
-* **Headers:**
-    * `Authorization: Bearer <access_token>`
 
 **Response (Success - 200):**
 
 * **Headers:**
     * `Content-Type: application/json`
-* **Body:** (Example)
+* **Body:** (Example – the actual content will depend on the `country.json` file)
 
 ```json
-{
-    "code": 200,
-    "status": "ok",
-    "message": {
-        "success": [  // Better to just use the message string directly
-            "Withdraw methods"
-        ]
+[
+    {
+        "country": "United States",
+        "dial_code": "+1",
+        "code": "US"
     },
-    "data": {
-        "methods": [
-            {
-                "id": 1,
-                "name": "Bank Transfer",
-                "image": "bank.png", // Example
-                // ... other method details
-            },
-            // ... more methods
-        ],
-        "image_path": "http://example.com/assets/images/withdraw/method" // Example
-    }
-}
-```
-
-
-**Explanation:** This endpoint retrieves the available withdrawal methods.
-
-
-
-## Withdraw Store Endpoint
-
-**Endpoint:** `/user/withdraw/store`
-
-**PHP Route:** `Route::post('user/withdraw/store', 'Api\UserController@withdrawStore');`
-
-**Request:**
-
-* **Method:** POST
-* **Headers:**
-    * `Authorization: Bearer <access_token>`
-    * `Content-Type: application/json`
-* **Body:**
-
-```json
-{
-    "method_code": 1, // ID of the withdrawal method
-    "amount": 200
-}
-
-```
-
-**Response (Success - 202):**
-* **Headers:**
-    * `Content-Type: application/json`
-* **Body:** (Example)
-```json
-{
-    "code": 202,
-    "status": "created",
-    "message": {
-        "success": [
-            "Withdraw request stored successfully"
-        ]
+    {
+        "country": "Canada",
+        "dial_code": "+1",
+        "code": "CA"
     },
-    "data": {
-        "trx": "withdraw_trx_id",
-        // ... other withdraw details
-    }
-}
+    // ... more countries
+]
 ```
-
-
-**Response (Method Not Found - 404):** (Structure similar to previous examples)
-
-**Response (Insufficient Balance, Amount Limit Errors, Validation Errors - 200):** *(Should be 400 or 422)*
-
-* **Headers:**
-    * `Content-Type: application/json`
-* **Body:** (Example: Insufficient Balance)
-
-```json
-{
-    "code": 200,  // Should be 400
-    "status": "ok", // Should be "error"
-    "message": {
-        "error": [
-            "You do not have sufficient balance for withdraw."
-        ]
-    }
-}
-```
-
-
-**Explanation:**  This endpoint creates a withdrawal request.  It performs validation checks (amount limits, balance, etc.) before storing the request.
-
-
-## Withdraw Confirm Endpoint
-
-**Endpoint:** `/user/withdraw/confirm`
-
-**PHP Route:** `Route::post('user/withdraw/confirm', 'Api\UserController@withdrawConfirm');`
-
-**Request:**
-
-* **Method:** POST
-* **Headers:**
-    * `Authorization: Bearer <access_token>`
-    * `Content-Type: application/json` (or `multipart/form-data`)
-* **Body:**  (The request body will vary depending on the chosen withdrawal method and its required user data. It may include text fields, file uploads, or 2FA codes). Example:
-
-```json
-{
-    "transaction": "unique_transaction_id",
-    "bank_account_number": "1234567890", // Example custom field
-    "swift_code": "ABCD1234",          // Example custom field
-    "authenticator_code": "123456"    // if 2FA enabled
-}
-
-```
-
-
-**Response (Success - 200):**
-* **Headers:**
-    * `Content-Type: application/json`
-* **Body:**
-```json
-{
-    "code": 200,
-    "status": "ok",
-    "message": {
-        "success": [
-            "Withdraw request sent successfully"
-        ]
-    }
-}
-```
-
-**Response (Withdraw Not Found, Validation Error, Wrong 2FA, Insufficient Balance - 200):** *(Use appropriate 4xx status codes)*
-
-
-**Explanation:** This endpoint confirms a withdrawal request. It handles additional user input based on the withdrawal method and processes the request, including 2FA verification if enabled.
-
-
-
-
-## Withdraw Log Endpoint
-
-**Endpoint:** `/user/withdraw/log`
-
-**PHP Route:** `Route::get('user/withdraw/log', 'Api\UserController@withdrawLog');`
-
-**Request:**
-
-* **Method:** GET
-* **Headers:**
-    * `Authorization: Bearer <access_token>`
-
-
-**Response (Success - 200):** (Structure very similar to other paginated responses)
-
-
-
-## Deposit History, Transactions, Orders, Cashbacks:
-
-These endpoints follow similar patterns as the previous ones. They handle requests related to viewing deposit history, transactions, orders, and cashbacks.  Ensure consistent status codes and response structures.
-
-
-
-## Cashback Balance
-
-**Endpoint:** `/user/cashback/balance`
-
-**PHP Route:** `Route::get('user/cashback/balance', 'Api\UserController@cashbackbalance');`
-
-**Request:**
-
-* **Method:** GET
-* **Headers:**
-    * `Authorization: Bearer <access_token>`
-
-**Response (Success - 200):**
-
-* **Headers:**
-    * `Content-Type: application/json`
-* **Body:** (Example)
-```json
-{
-    "code": 200,
-    "status": "ok",
-    "data": {
-        "balance": 35.20,
-    }
-}
-```
-
-
-
-## Order Details Endpoint
-**Endpoint:** `/user/order/{order_number}`
-
-**PHP Route:** `Route::get('user/order/{order_number}', 'Api\UserController@orderDetails');`
-
-**Request:**
-
-* **Method:** GET
-* **Headers:**
-    * `Authorization: Bearer <access_token>`
-* **Path Parameter:**
-    * `order_number`: The unique order number.
-
-**Response (Success - 200):**
-(Structure very similar to other success responses)
-
 
 
 
