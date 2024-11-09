@@ -1498,7 +1498,7 @@ This document details the API endpoints for managing user profiles. All endpoint
 ### 3. Update Profile
 
 * **Endpoint:** `/profile/update`
-* **Method:** `POST`
+* **Method:** `PUT`
 * **Description:** Updates the authenticated user's profile information.
 * **Request Body:**
 ```json
