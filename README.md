@@ -4081,6 +4081,185 @@ This document details the API endpoints for buying and selling gift cards. All e
 
 
 
+```markdown
+# Insurance API Documentation
+
+This document details the API endpoints for purchasing insurance products. All endpoints require authentication using a bearer token in the `Authorization` header.
+
+## Endpoints
+
+### 1. Get Insurance Operators/Variations
+
+* **Endpoint:** `/insurance/operators/{code}`
+* **Method:** `GET`
+* **Description:** Retrieves the variations (plans/options) for a specific insurance provider using the VTPass API.
+* **Request Body:** None (`code` is a URL parameter representing the insurance provider's service ID)
+* **Response Body (Success):**
+```json
+{
+ "status": true,
+ "message": "Service Fetched",
+ "image": "image_url_for_insurance_provider",
+ "content": { // Response from VTPass API (structure varies based on provider)
+     "variations":[
+        {
+            "name": "Variation/Plan Name",
+            "variation_code": "variation_code",
+            "variation_amount": 1500,
+            // ... other details about the variation
+        },
+     ],
+    // ... other content from VTPass
+ }
+}
+```
+
+### 2. Get Insurance List
+
+* **Endpoint:** `/insurance/list`
+* **Method:** `GET`
+* **Description:** Retrieves a list of available insurance providers.
+* **Request Body:** None
+* **Response Body:**
+```json
+{
+ "status": true,
+ "message": "Insurance providers fetched successfully",
+ "data": [
+     {"name": "Third Party Motor Insurance - Universal Insurance", "code": "ui-insure"},
+     {"name": "Health Insurance - HMO", "code": "health-insurance-rhl"},
+     {"name": "Personal Accident Insurance", "code": "personal-accident-insurance"}
+ ]
+}
+```
+
+### 3. Get Insurance Purchase History
+
+* **Endpoint:** `/insurance/history`
+* **Method:** `GET`
+* **Description:** Retrieves the authenticated user's insurance purchase history. Supports optional search functionality.
+* **Request Body:** (Query parameters)
+```
+search="transaction_id"  // Optional search term.
+per_page=10             // Optional. Number of results per page. Default is 15.
+```
+* **Response Body:**
+```json
+{
+    "status": true,
+    "message": "History fetched successfully",
+    "data": { // Paginated history data
+        "data": [
+            // Array of Order objects representing insurance purchases
+        ],
+        // ... pagination details (current_page, last_page, etc.)
+    }
+}
+```
+
+### 4. Buy Motor Insurance
+
+* **Endpoint:** `/insurance/buy/motor`
+* **Method:** `POST`
+* **Description:** Purchases motor insurance using the VTPass API.
+* **Request Body:**
+```json
+{
+ "password": "user_transaction_pin",
+ "wallet": "main" or "ref", // Wallet to use for payment
+ // ...Vehicle and Insurance Details...
+ "Chasis_Number": "chassis_number",
+ "Contact_Address": "contact_address",
+ "Engine_Number": "engine_number",
+ "Insured_Name": "insured_name",
+ "Vehicle_Color": "vehicle_color",
+ "Vehicle_Make": "vehicle_make",
+ "Vehicle_Model": "vehicle_model",
+ "Year_of_Make": "year_of_make",
+ "billersCode": "vehicle_plate_number", // This is used as both billersCode and Plate_Number
+ "serviceID": "vtpass_service_id", //  E.g., "ui-insure"
+ "variation_code": "vtpass_variation_code",  // From /operators response
+ "variation_name": "insurance_plan_name",  //  Name of the selected insurance plan
+ "phone": "phone_number",
+ "amount": 15000 // Insurance price
+
+}
+```
+
+
+
+* **Response Body (Success):**
+```json
+{
+ "status": true,
+ "message": "Transaction was successful",
+ "data": {
+     "order_id": "transaction_id",
+     "transaction": { // Transaction details from VTPass API
+        // ...
+     }
+ }
+}
+```
+
+* **Response Body (Error - Validation, Authentication, Balance, or VTPass API Issues):** Standard error responses.
+
+
+### 5. Buy Personal Insurance
+
+* **Endpoint:** `/insurance/buy/personal`
+* **Method:** `POST`
+* **Description:** Purchases personal accident insurance using the VTPass API.
+
+* **Request Body:**
+```json
+{
+    "password": "user_transaction_pin",
+    "wallet": "main" or "ref", // Wallet to use for payment
+    "billersCode": "full_name", // Customer name
+    "address": "contact_address",
+    "dob": "date_of_birth", // YYYY-MM-DD format
+    "next_kin_name": "next_of_kin_name",
+    "next_kin_phone": "next_of_kin_phone",
+    "business_occupation": "business/occupation",
+    "serviceID": "vtpass_service_id", // E.g. "personal-accident-insurance"
+    "variation_code": "vtpass_variation_code", // From `/operators` response
+    "variation_name": "insurance_plan_name", // Name of insurance plan
+    "phone": "phone_number",
+    "amount": 5000 // Insurance Price
+}
+```
+
+* **Response Body (Success):**
+```json
+{
+    "status": true,
+    "message": "Transaction was successful",
+    "data": {
+        "order_id": "transaction_id",
+        "transaction": {/* ...Details from VTPass */},
+        "insurance_details": {
+            "full_name": "customer_full_name",
+            "policy_type": "Personal Insurance",
+            "coverage_start": "YYYY-MM-DD", // Today's date
+            "next_of_kin": "next_of_kin_name",
+            "policy_number": "policy_number_from_vtpass_or_transaction_id"
+        }
+    }
+}
+
+```
+
+* **Response Body (Error):** Standard error responses for validation, authentication, insufficient balance, and VTPass API issues.
+
+
+
+```
+
+
+
+
+
 
 
 # (Prefrences) Site API Documentation
