@@ -3621,6 +3621,168 @@ This document details API endpoints for utility bill payments (e.g., electricity
 
 
 
+
+
+
+# Notification Preference API Documentation
+
+This document details the API endpoints for managing user notification preferences. All endpoints require authentication using a bearer token in the `Authorization` header.
+
+## Endpoints
+
+### 1. Get Notification Preferences
+
+* **Endpoint:** `/notification/preferences`
+* **Method:** `GET`
+* **Description:** Retrieves the notification preferences for the authenticated user.
+* **Request Body:** None
+* **Response Body (Success):**
+```json
+{
+    "status": "success",
+    "message": "Notification preferences retrieved successfully",
+    "data": {
+        "email_notifications": true, // Or false
+        "sms_notifications": false,   // Or true
+        // "push_notifications": true, //  If this field is present in your User model
+        // "notification_settings": {  // If you use granular type-based settings (uncomment code if needed). The strucuture of these detailed settings would depend on your implemented logic. 
+        //     // ... type-based settings (transaction, security, etc.)
+        // }
+    }
+}
+```
+
+* **Response Body (Error):**
+```json
+{
+ "status": "error",
+ "message": "Failed to fetch notification preferences",
+ "error": "Error details"
+}
+
+```
+
+
+### 2. Update Notification Preferences
+
+* **Endpoint:** `/notification/preferences`
+* **Method:** `PUT`
+* **Description:** Updates the notification preferences for the authenticated user.  You can update general preferences (`email_notifications`, `sms_notifications`) and/or detailed type-specific preferences (`notification_settings`).
+
+* **Request Body:**
+```json
+{
+    "email_notifications": true,   // Or false
+    "sms_notifications": false,  //  Or true
+    // "push_notifications": true, // If applicable
+    // "notification_settings": {  // If you're using fine-grained settings per type (uncomment related code if needed)
+    //     "transaction": {
+    //         "email": true,
+    //         "sms": false,
+    //         "push": true
+    //     },
+    //     "security": {
+    //         // ...
+    //     },
+    //     // ... other types
+    // }
+}
+
+```
+
+
+* **Response Body (Success):**
+
+```json
+{
+  "status": "success",
+  "message": "Notification preferences updated successfully",
+  "data": {  // Updated preferences
+       "email_notifications": true,
+       "sms_notifications": false,
+      //  "push_notifications": true,  // If applicable.
+      //   "notification_settings": { //  If applicable
+      //      // ... updated settings
+      //   }
+  }
+}
+```
+
+
+* **Response Body (Error - Validation):**
+
+```json
+{
+    "status": "error",
+    "message": "Validation error",
+    "errors": {
+        // ... validation error messages
+    }
+}
+```
+* **Response Body (Error):**
+
+```json
+{
+    "status": "error",
+    "message": "Failed to update notification preferences",
+    "error": {error_details}
+}
+```
+
+
+
+### 3. Update Notification Type Settings
+
+* **Endpoint:** `/notification/preferences/type`
+* **Method:** ``PUT`
+* **Description:** Updates the notification settings for a *specific* notification type (transaction, security, marketing, system).  This endpoint provides a way to manage granular notification settings.  The structure of `notification_settings` would be based on your implemented logic. The commented-out code in the controller suggests a possible structure.
+
+
+
+* **Request Body:**
+```json
+{
+    "type": "transaction",  // Or security, marketing, system.  Must be one of the defined types.
+    "email": true,
+    "sms": false,
+   // "push": true // if applicable
+}
+```
+
+
+
+* **Response Body (Success):**
+
+```json
+{
+    "status": "success",
+    "message": "Notification type settings updated successfully",
+    "data": {
+        "type": "transaction",  // The updated type
+        "settings": {        //  The new settings for that type
+            "email": true,
+            "sms": false,
+            //"push": true // if applicable
+        }
+    }
+}
+
+```
+
+* **Response Body (Error - Validation):** Standard validation error response.
+
+
+* **Response Body (Error):** Standard error response.
+
+
+
+
+
+
+
+
+
 # Notification API Documentation
 
 This document details the API endpoints for managing user notifications.  All endpoints except `/notifications/send` require authentication using a bearer token in the `Authorization` header. The `/notifications/send` endpoint is for admin use only and requires admin authentication. This version focuses on optimized data retrieval.
