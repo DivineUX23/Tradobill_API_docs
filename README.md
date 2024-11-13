@@ -1,11 +1,11 @@
 # Tradobill_API_docs
 Tradobill API doc
 
-#NOTE: 
+# NOTE: 
 
-##ALL ENDPOINTS MUST HAVE:
+## ALL ENDPOINTS MUST HAVE:
 
-##Request Headers:
+## Request Headers:
 ```
 Content-Type: application/json
 Accept: application/json
