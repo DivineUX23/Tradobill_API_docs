@@ -13,7 +13,7 @@ Accept: application/json
 ```
 
 
-## Endpoints, Request Bodies, Headers, and Responses
+# Endpoints, Request Bodies, Headers, and Responses
 
 ### 1. Login Endpoint
 **Endpoint:** `/api/auth/login`
