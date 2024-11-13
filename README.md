@@ -1,5 +1,17 @@
 # Tradobill_API_docs
 Tradobill API doc
+
+#NOTE: 
+
+##ALL ENDPOINTS MUST HAVE:
+
+##Request Headers:
+```
+Content-Type: application/json
+Accept: application/json
+
+```
+
 ## Endpoints, Request Bodies, Headers, and Responses
 
 ### 1. Login Endpoint
