@@ -3,14 +3,15 @@ Tradobill API doc
 
 # NOTE: 
 
-## ALL ENDPOINTS MUST HAVE:
+## ALL ENDPOINTS MUST HAVE THE FOLLOWING:
 
-## Request Headers:
+## 1. Request Headers:
 ```
 Content-Type: application/json
 Accept: application/json
 
 ```
+
 
 ## Endpoints, Request Bodies, Headers, and Responses
 
