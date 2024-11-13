@@ -108,42 +108,136 @@ Tradobill API doc
   ```
 
 
+# Registration API Documentation
+
+This document details the API endpoints for user registration.
+
+## Endpoints
 
 
+### 1. Register User
 
-## Registration Endpoint
-
-**Endpoint:** `/auth/register`
-
-**PHP Route:** `Route::post('auth/register', 'Api\Auth\RegisterController@register');`
-
-**Request:**
-
-* **Method:** POST
-* **Headers:**
-    * `Content-Type: application/json`
-* **Body:**
-
+* **Endpoint:** `/user/register`
+* **Method:** `POST`
+* **Description:** Registers a new user. Sends a verification code to the user's email address.
+* **Request Body:**
 ```json
 {
-    "email": "testuser@example.com",
-    "mobile": "1234567890",
-    "password": "SecurePassword123",
-    "password_confirmation": "SecurePassword123",
-    "username": "testuser123",
-    "country_code": "US", 
+    "email": "user_email@example.com",
+    "mobile": "1234567890", // Without country code and mobile code
     "mobile_code": "+1",
+    "password": "password",
+    "password_confirmation": "password",
+    "username": "username123",
+    "country_code": "US",
     "country": "United States",
-    "agree": true // If required by GeneralSetting
+    "captcha": "captcha_response", // If captcha is enabled
+    "agree": true // If terms and conditions are enabled
+}
+```
+
+* **Response Body (Success - Verification Code Sent):**
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "message": {
+        "success": "Verification code sent successfully"
+    }
+}
+```
+
+* **Response Body (Error - Validation):**
+```json
+{
+    "code": 422,
+    "status": "error",
+    "message": {
+        "error": [
+            // ... validation error messages
+        ]
+    }
+}
+```
+* **Response Body (Error - Email Send):**
+```json
+{
+    "code": 500,
+    "status": "error",
+    "message": {
+        "error": "Could not send verification email. Please check your email or contact support."
+    }
 }
 ```
 
 
-**Response (Successful Registration - 202):**
 
-* **Headers:**
-    * `Content-Type: application/json`
-* **Body:**
+
+### 2. Resend Verification Code
+
+* **Endpoint:** `/user/resend-code`
+* **Method:** `POST`
+* **Description:** Resends the email verification code. This endpoint is typically used if the user didn't receive the initial verification email.
+* **Request Body:**
+```json
+{
+ "email": "user_email@example.com"
+}
+```
+
+
+* **Response Body (Success - Verification Code Sent):**
+```json
+{
+    "code": 200,
+    "status": "ok",
+    "message": {
+        "success": "Verification code sent successfully"
+    }
+}
+```
+
+* **Response Body (Error - Validation):**
+```json
+{
+    "code": 422,
+    "status": "error",
+    "message": {
+        "error": [
+            // ... validation error messages
+        ]
+    }
+}
+```
+* **Response Body (Error - Email Send):**
+```json
+{
+    "code": 500,
+    "status": "error",
+    "message": {
+        "error": "Could not send verification email. Please check your email or contact support."
+    }
+}
+```
+
+
+
+### 3. Verify Email
+
+* **Endpoint:** `/user/verify-email`
+* **Method:** `POST`
+* **Description:** Verifies the user's email address using the verification code.  If successful, marks the user's email as verified and logs them in.
+
+* **Request Body:**
+```json
+{
+ "email": "user_email@example.com",
+ "ver_code": "123456" // Verification code received via email
+}
+
+```
+* **Response Body (Success):**
+
 
 ```json
 {
@@ -167,45 +261,24 @@ Tradobill API doc
 }
 ```
 
-**Response (Validation Error - 200):**  *(This should be a 422 Unprocessable Entity)*
 
-* **Headers:**
-    * `Content-Type: application/json`
-* **Body:**
+* **Response Body (Error - Validation or Invalid Code):** Standard error responses as in other endpoints.
 
+```
+
+* **Response Body (Error - Validation):**
 ```json
 {
-    "code": 200, // Incorrect: Should be 422
-    "status": "ok", // Incorrect: Should be "error" or similar
+    "code": 400,
+    "status": "error",
     "message": {
-        "error": [
-            "The email has already been taken.",
-            // ...other validation errors
-        ]
+        "error": "Invalid or expired verification code"
     }
 }
 ```
 
 
 
-**Response (Mobile Number Exists - 409):**
-
-* **Headers:**
-    * `Content-Type: application/json`
-* **Body:**
-
-```json
-{
-    "code": 409,
-    "status": "conflict",
-    "message": {
-        "error": [
-            "The mobile number already exists"
-        ]
-    }
-}
-
-```
 
 
 
