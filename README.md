@@ -1437,8 +1437,6 @@ remark=deposit/withdrawal/etc. // Filter by transaction remark
 }
 ```
 
-```
-
 
 
 ### 28. Download Attachment
