@@ -2380,7 +2380,7 @@ This document details the API endpoints for cryptocurrency functionalities. All 
 
 ### 2. Get Crypto Currencies (Same as Rates)
 
-* **Endpoint:** `/user/currencies`
+* **Endpoint:** `/crypto/currencies`
 * **Method:** `GET`
 * **Description:** This endpoint appears to be identical to `/user/crypto/rates` and retrieves the same data.
 * **Request Body:** None
