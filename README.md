@@ -4368,7 +4368,6 @@ This document details the API endpoints for buying and selling gift cards. All e
 
 
 
-```markdown
 # Insurance API Documentation
 
 This document details the API endpoints for purchasing insurance products. All endpoints require authentication using a bearer token in the `Authorization` header.
@@ -4541,7 +4540,6 @@ per_page=10             // Optional. Number of results per page. Default is 15.
 
 
 
-```
 
 
 
