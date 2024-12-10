@@ -12,6 +12,11 @@ Accept: application/json
 
 ```
 
+## 2. Domain:
+```
+https://weekenddreams.tradobill.com/api/
+```
+
 
 # Endpoints, Request Bodies, Headers, and Responses
 
@@ -130,7 +135,7 @@ This document details the API endpoints for user registration.
 
 ### 1. Register User
 
-* **Endpoint:** `/user/register`
+* **Endpoint:** `/auth/register`
 * **Method:** `POST`
 * **Description:** Registers a new user. Sends a verification code to the user's email address.
 * **Request Body:**
@@ -188,7 +193,7 @@ This document details the API endpoints for user registration.
 
 ### 2. Resend Verification Code
 
-* **Endpoint:** `/user/resend-code`
+* **Endpoint:** `/auth/resend-code`
 * **Method:** `POST`
 * **Description:** Resends the email verification code. This endpoint is typically used if the user didn't receive the initial verification email.
 * **Request Body:**
@@ -237,7 +242,7 @@ This document details the API endpoints for user registration.
 
 ### 3. Verify Email
 
-* **Endpoint:** `/user/verify-email`
+* **Endpoint:** `/auth/verify-email`
 * **Method:** `POST`
 * **Description:** Verifies the user's email address using the verification code.  If successful, marks the user's email as verified and logs them in.
 
